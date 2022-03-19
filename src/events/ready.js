@@ -1,19 +1,9 @@
 /** @file Initialize Bot on ready. Register commands and etc. */
 
-import fileSystem from "fs/promises";
-import path from "path";
-import url from "url";
-
 import { Collection, MessageEmbed } from "discord.js";
 
 import commands from "../lib/commands.js";
-
-const pkg = JSON.parse(
-	await fileSystem.readFile(
-		path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "../package.json"),
-		"utf8",
-	),
-);
+import pkg from "../lib/package.js";
 
 /** @type {import("../../types/event").default<"ready">} */
 const event = {
@@ -24,46 +14,23 @@ const event = {
 			}`,
 		);
 
-		const GUILD_ID = process.env.GUILD_ID || "";
-		const guilds = await client.guilds.fetch();
+		const { LOGS_CHANNEL } = process.env;
 
-		guilds.forEach(async (guild) => {
-			if (guild.id === GUILD_ID) {
-				if (process.env.NODE_ENV !== "production") return;
+		if (!LOGS_CHANNEL) throw new ReferenceError("LOGS_CHANNEL is not set in the .env");
 
-				const { channels } = await guild.fetch();
-				const { ERROR_CHANNEL } = process.env;
+		const channel = await client.channels.fetch(LOGS_CHANNEL);
 
-				if (!ERROR_CHANNEL)
-					throw new ReferenceError("ERROR_CHANNEL is not set in the .env");
+		if (!channel?.isText()) throw new ReferenceError("Could not find error reporting channel");
 
-				const channel = await channels.fetch(ERROR_CHANNEL);
-
-				if (!channel?.isText())
-					throw new ReferenceError("Could not find error reporting channel");
-
-				return await channel?.send({
-					embeds: [
-						new MessageEmbed()
-							.setTitle("Bot restarted!")
-							.setDescription(`Version ${pkg.version}`)
-							.setColor("RANDOM"),
-					],
-				});
-			}
-
-			const guildCommands = await client.application?.commands
-				.fetch({
-					guildId: guild.id,
-				})
-				.catch(() => {});
-
-			guildCommands?.forEach(async (command) => await command.delete().catch(() => {}));
+		await channel?.send({
+			embeds: [
+				new MessageEmbed()
+					.setTitle("Bot restarted!")
+					.setDescription(`Version **v${pkg.version}**`)
+					.setColor("RANDOM"),
+			],
 		});
 
-		const prexistingCommands = await client.application.commands.fetch({
-			guildId: GUILD_ID,
-		});
 		/**
 		 * @type {Collection<
 		 * 	string,
@@ -80,24 +47,41 @@ const event = {
 				slashes.set(key, { command: command.data, permissions: command.permissions });
 		}
 
-		await Promise.all(
-			prexistingCommands.map((command) => {
-				if (slashes.has(command.name)) return false;
+		const guilds = await client.guilds.fetch();
+		const promises = [];
 
-				return command.delete();
-			}),
-		);
+		for (const guild of guilds.values()) {
+			const promise = client.application.commands
+				.fetch({ guildId: guild.id })
+				.then(async (prexistingCommands) => {
+					await Promise.all(
+						prexistingCommands.map((command) => {
+							if (slashes.has(command.name)) return false;
 
-		await Promise.all(
-			slashes.map(async ({ command, permissions }, name) => {
-				const newCommand = await (prexistingCommands.has(name)
-					? client.application?.commands.edit(name, command.toJSON(), GUILD_ID)
-					: client.application?.commands.create(command.toJSON(), GUILD_ID));
+							return command.delete();
+						}),
+					);
 
-				if (permissions)
-					await newCommand?.permissions.add({ guild: GUILD_ID, permissions });
-			}),
-		);
+					await Promise.all(
+						slashes.map(async ({ command, permissions }, name) => {
+							const newCommand = await (prexistingCommands.has(name)
+								? client.application?.commands.edit(
+										name,
+										command.toJSON(),
+										guild.id,
+								  )
+								: client.application?.commands.create(command.toJSON(), guild.id));
+
+							if (permissions)
+								await newCommand?.permissions.add({ guild: guild.id, permissions });
+						}),
+					);
+				});
+
+			promises.push(promise);
+		}
+
+		await Promise.all(promises);
 	},
 
 	once: true,

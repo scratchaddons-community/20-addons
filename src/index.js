@@ -1,26 +1,21 @@
 /** @file Run Bot. */
 import http from "http";
+import path from "path";
+import url from "url";
 
 import { Client, MessageEmbed } from "discord.js";
 import dotenv from "dotenv";
 
 import escapeMessage, { escapeForCodeblock } from "./lib/escape.js";
 import importScripts from "./lib/importScripts.js";
+import pkg from "./lib/package.js";
 
 dotenv.config();
 
-const client = new Client({
-	allowedMentions: { parse: [], roles: [] },
+const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
-	presence: {
-		activities: [
-			{
-				name: process.env.NODE_ENV === "production" ? "the SA server!" : "for bugs...",
-				type: "WATCHING",
-				url: "https://scradd.openode.dev",
-			},
-		],
-	},
+const client = new Client({
+	failIfNotExists: false,
 
 	intents: [
 		"GUILDS",
@@ -41,21 +36,24 @@ const client = new Client({
 		"GUILD_SCHEDULED_EVENTS",
 	],
 
-	restGlobalRateLimit: 50,
-	failIfNotExists: false,
-	restWsBridgeTimeout: 30_000,
-
 	partials: ["USER", "MESSAGE", "CHANNEL", "GUILD_MEMBER", "REACTION", "GUILD_SCHEDULED_EVENT"],
+	presence: { activities: [{ name: "the SA Bot Jam!", type: "COMPETING", url: pkg.homepage }] },
+	restGlobalRateLimit: 50,
+	restWsBridgeTimeout: 30_000,
 });
 
-const events = await importScripts("events");
+const events = await importScripts(
+	/** @type {`${string}events`} */ (path.resolve(dirname, "./events")),
+);
 
 for (const [event, execute] of events.entries()) {
 	if (execute.apply === false) continue;
 
 	client[execute.once ? "once" : "on"](event, async (...args) => {
 		try {
-			return await execute.event(...args);
+			await execute.event(...args);
+
+			return;
 		} catch (error) {
 			try {
 				console.error(error);
@@ -63,24 +61,21 @@ for (const [event, execute] of events.entries()) {
 				const embed = new MessageEmbed()
 					.setTitle("Error!")
 					.setDescription(
-						`Uh-oh! I found an error! (event ${escapeMessage(
+						`Uh-oh! I found an error! (event **${escapeMessage(
 							event,
-						)})\n\`\`\`json\n${escapeForCodeblock(JSON.stringify(error))}\`\`\``,
+						)}(()))\n\`\`\`json\n${escapeForCodeblock(JSON.stringify(error))}\`\`\``,
 					)
 					.setColor("LUMINOUS_VIVID_PINK");
-				const { ERROR_CHANNEL } = process.env;
+				const { LOGS_CHANNEL } = process.env;
 
-				if (!ERROR_CHANNEL)
-					throw new ReferenceError("ERROR_CHANNEL is not set in the .env");
+				if (!LOGS_CHANNEL) throw new ReferenceError("LOGS_CHANNEL is not set in the .env");
 
-				const testingChannel = await client.channels.fetch(ERROR_CHANNEL);
+				const testingChannel = await client.channels.fetch(LOGS_CHANNEL);
 
 				if (!testingChannel?.isText())
 					throw new ReferenceError("Could not find error reporting channel");
 
-				await testingChannel.send({
-					embeds: [embed],
-				});
+				await testingChannel.send({ embeds: [embed] });
 			} catch (errorError) {
 				console.error(errorError);
 			}
@@ -91,9 +86,7 @@ for (const [event, execute] of events.entries()) {
 await client.login(process.env.BOT_TOKEN);
 
 const server = http.createServer((_, response) => {
-	response.writeHead(302, {
-		location: "https://discord.gg/Cs25kzs889",
-	});
+	response.writeHead(302, { location: pkg.homepage });
 	response.end();
 });
 
