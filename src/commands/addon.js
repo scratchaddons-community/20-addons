@@ -31,6 +31,17 @@ for (const addonId of addonIds.filter((item) => !item.startsWith("//"))) {
 
 const [addons, manifest] = await Promise.all([Promise.all(addonPromises), manifestPromise]);
 
+/**
+ * @param {string} full
+ *
+ * @returns {string}
+ */
+ function getVersion(full) {
+	return (/^(?<main>\d+\.\d+.)\d+/).exec(full).groups?.main || "";
+}
+
+const version = getVersion(manifest.version);
+
 const QUESTIONS = {
 	categories: {
 		easterEgg: "is this addon a easter egg addon (shown after typing the Konami code)?",
@@ -93,8 +104,6 @@ const firstLetters = Object.fromEntries(
 );
 
 const forceEasterEggs = new Set(["cat-blocks"]);
-
-const version = (/^(?<main>\d+\.\d+.)\d+/).exec(manifest.version).groups.main||manifest.version;
 
 const questionsByAddon = addons.map((addon) => {
 	/** @type {{ question: string; dependencies?: { [key: string]: boolean } }[]} */
@@ -336,12 +345,7 @@ const questionsByAddon = addons.map((addon) => {
 		});
 	}
 
-	const [extensionMajor, extensionMinor] = version.split("."); // todo fix
-
-	if (addon.versionAdded) {
-		const [addonMajor, addonMinor] = addon.versionAdded.split(".");
-
-		if (extensionMajor === addonMajor && extensionMinor === addonMinor) {
+	if (addon.versionAdded && version === getVersion(addon.versionAdded)) {
 			result.push(
 				{ question: QUESTIONS.history.new },
 				{
@@ -355,12 +359,8 @@ const questionsByAddon = addons.map((addon) => {
 				},
 			);
 		}
-	}
 
-	if (addon.latestUpdate) {
-		const [addonMajor, addonMinor] = addon.latestUpdate.version.split(".");
-
-		if (extensionMajor === addonMajor && extensionMinor === addonMinor) {
+	if (addon.latestUpdate && version === getVersion(addon.latestUpdate.version)) {
 			result.push(
 				{ question: QUESTIONS.history.updated },
 				{
@@ -379,7 +379,6 @@ const questionsByAddon = addons.map((addon) => {
 				},
 			);
 		}
-	}
 
 	if (addon.tags.includes("featured")) {
 		result.push({
