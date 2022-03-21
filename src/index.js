@@ -3,10 +3,9 @@ import http from "http";
 import path from "path";
 import url from "url";
 
-import { Client, MessageEmbed } from "discord.js";
+import { Client, MessageEmbed, Util } from "discord.js";
 import dotenv from "dotenv";
 
-import escapeMessage, { escapeForCodeblock } from "./lib/escape.js";
 import importScripts from "./lib/importScripts.js";
 import pkg from "./lib/package.js";
 
@@ -61,9 +60,9 @@ for (const [event, execute] of events.entries()) {
 				const embed = new MessageEmbed()
 					.setTitle("Error!")
 					.setDescription(
-						`Uh-oh! I found an error! (event **${escapeMessage(
+						`Uh-oh! I found an error! (event **${Util.escapeMarkdown(
 							event,
-						)}(()))\n\`\`\`json\n${escapeForCodeblock(JSON.stringify(error))}\`\`\``,
+						)}**)\n\`\`\`json\n${Util.cleanCodeBlockContent(JSON.stringify(error))}\`\`\``,
 					)
 					.setColor("LUMINOUS_VIVID_PINK");
 				const { LOGS_CHANNEL } = process.env;

@@ -1,6 +1,6 @@
 /** @file Command To get information about an addon. */
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { Collection, Message, MessageActionRow, MessageButton } from "discord.js";
+import { Collection, Message, MessageActionRow, MessageButton, Util } from "discord.js";
 import fetch from "node-fetch";
 
 import CONSTANTS from "../CONSTANTS.js";
@@ -19,13 +19,15 @@ const addonPromises = [];
 
 for (const addonId of addonIds.filter((item) => !item.startsWith("//"))) {
 	addonPromises.push(
-		fetch(`${CONSTANTS.repository}/addons/${addonId}/addon.json`).then(async (response) => ({
-			...(await /** @type {Promise<import("../../types/addonManifest").default>} */ (
-				response.json()
-			)),
+		fetch(`${CONSTANTS.repository}/addons/${encodeURIComponent(addonId)}/addon.json`).then(
+			async (response) => ({
+				...(await /** @type {Promise<import("../../types/addonManifest").default>} */ (
+					response.json()
+				)),
 
-			id: addonId,
-		})),
+				id: addonId,
+			}),
+		),
 	);
 }
 
@@ -36,8 +38,8 @@ const [addons, manifest] = await Promise.all([Promise.all(addonPromises), manife
  *
  * @returns {string}
  */
- function getVersion(full) {
-	return (/^(?<main>\d+\.\d+.)\d+/).exec(full).groups?.main || "";
+function getVersion(full) {
+	return (/^(?<main>\d+\.\d+)\.\d+/).exec(full).groups?.main || "";
 }
 
 const version = getVersion(manifest.version);
@@ -47,36 +49,48 @@ const QUESTIONS = {
 		easterEgg: "is this addon a easter egg addon (shown after typing the Konami code)?",
 
 		editor: {
-			code: "is this addon listed under “Scratch Editor Features” -> “Code Editor”?",
-			costumes: "is this addon listed under “Scratch Editor Features” -> “Costume Editor”?",
-			other: "is this addon listed under “Scratch Editor Features” -> “Others”?",
-			player: "is this addon listed under “Scratch Editor Features” -> “Project Player”?",
-			root: "is this addon listed under “Scratch Editor Features”?",
+			code: "is this addon listed under **Scratch Editor Features** -> **Code Editor**?",
+
+			costumes:
+				"is this addon listed under **Scratch Editor Features** -> **Costume Editor**?",
+
+			other: "is this addon listed under **Scratch Editor Features** -> **Others**?",
+			player: "is this addon listed under **Scratch Editor Features** -> **Project Player**?",
+			root: "is this addon listed under **Scratch Editor Features**?",
 		},
 
-		popup: "is this addon listed under “Extension Popup Features”?",
-		themes: "is this addon listed under “Themes”?",
+		popup: "is this addon listed under **Extension Popup Features**?",
+		themes: "is this addon listed under **Themes**?",
 
 		website: {
-			forums: "is this addon listed under “Scratch Website Features” -> “Forums”?",
-			other: "is this addon listed under “Scratch Website Features” -> “Others”?",
-			profiles: "is this addon listed under “Scratch Website Features” -> “Profiles”?",
-			projects: "is this addon listed under “Scratch Website Features” -> “Project Pages”?",
-			root: "is this addon listed under “Scratch Website Features”?",
+			forums: "is this addon listed under **Scratch Website Features** -> **Forums**?",
+			other: "is this addon listed under **Scratch Website Features** -> **Others**?",
+
+			profiles:
+				"is this addon listed under **Scratch Website Features** -> **Profiles**?",
+
+			projects:
+				"is this addon listed under **Scratch Website Features** -> **Project Pages**?",
+
+			root: "is this addon listed under **Scratch Website Features**?",
 		},
 	},
 
 	groups: {
-		beta: "is this addon found under “Beta” when disabled?",
-		featured: "is this addon found under “Featured” when disabled?",
-		forums: "is this addon found under “Forums” when disabled?",
-		others: "is this addon found under “Others” when disabled?",
+		beta: "is this addon found under **Beta** when disabled?",
+		featured: "is this addon found under **Featured** when disabled?",
+		forums: "is this addon found under **Forums** when disabled?",
+		others: "is this addon found under **Others** when disabled?",
 	},
 
 	history: {
-		new: `was this addon added in the latest version (${version})?`,
+		new: `was this addon added in the latest version (**[${Util.escapeMarkdown(
+			version,
+		)}](https://github.com/ScratchAddons/ScratchAddons/releases/tag/v${version}.0)**)?`,
 
-		updated: `was this addon updated (not including completely new addons) in the latest version (${version})?`,
+		updated: `was this addon updated (not including completely new addons) in the latest version (**[${Util.escapeMarkdown(
+			version,
+		)}](https://github.com/ScratchAddons/ScratchAddons/releases/tag/v${version}.0)**)?`,
 	},
 
 	settings: {
@@ -89,16 +103,18 @@ const QUESTIONS = {
 	},
 
 	tags: {
-		beta: "does this addon have the “Beta” tag?",
-		dangerous: "does this addon have the “Dangerous” tag?",
-		forums: "does this addon have the “Forums” tag?",
-		recommended: "does this addon have the “Recommended” tag?",
+		beta: "does this addon have the **Beta** tag?",
+		dangerous: "does this addon have the **Dangerous** tag?",
+		forums: "does this addon have the **Forums** tag?",
+		recommended: "does this addon have the **Recommended** tag?",
 	},
 };
 
 const firstLetters = Object.fromEntries(
 	addons.map((addon) => [
-		`does this addon’s name start with ${addon.name.at(0)?.toUpperCase() || ""}?`,
+		`does this addon’s name start with **${Util.escapeMarkdown(
+			addon.name.at(0)?.toUpperCase() || "",
+		)}**?`,
 		false,
 	]),
 );
@@ -123,9 +139,9 @@ const questionsByAddon = addons.map((addon) => {
 	if (addon.credits) {
 		result.push(
 			{ question: QUESTIONS.settings.credits },
-			...addon.credits.map((credit) => ({
-				question: `did ${credit.name} contribute to this addon?`,
+			...addon.credits.map(({ name }) => ({
 				dependencies: { [QUESTIONS.settings.credits]: true },
+				question: `did **${name}** contribute to this addon?`,
 			})),
 		);
 	}
@@ -144,11 +160,15 @@ const questionsByAddon = addons.map((addon) => {
 			Object.entries(firstLetters).filter(
 				(question) =>
 					question[0] !==
-					`does this addon’s name start with ${addon.name.at(0)?.toUpperCase() || ""}?`,
+					`does this addon’s name start with **${Util.escapeMarkdown(
+						addon.name.at(0)?.toUpperCase() || "",
+					)}**?`,
 			),
 		),
 
-		question: `does this addon’s name start with ${addon.name.at(0)?.toUpperCase() || ""}?`,
+		question: `does this addon’s name start with **${Util.escapeMarkdown(
+			addon.name.at(0)?.toUpperCase() || "",
+		)}**?`,
 	});
 
 	const category = addon.tags.includes("popup")
@@ -178,14 +198,14 @@ const questionsByAddon = addons.map((addon) => {
 					dependencies: {
 						[QUESTIONS.categories.themes]: true,
 
-						[`is this addon listed under “Themes” -> “${
-							addon.tags.includes("editor") ? "Website" : "Editor"
-						} Themes’?`]: false,
+						[`is this addon listed under **Themes** -> **${
+							addon.tags.includes("editor") ? "**Website**" : "**Editor**"
+						} Themes**?`]: false,
 					},
 
-					question: `is this addon listed under “Themes” -> “${
-						addon.tags.includes("editor") ? "Editor" : "Website"
-					} Themes’?`,
+					question: `is this addon listed under **Themes** -> **${
+						addon.tags.includes("editor") ? "**Editor" : "**Website"
+					} Themes**?`,
 				},
 			);
 
@@ -346,39 +366,67 @@ const questionsByAddon = addons.map((addon) => {
 	}
 
 	if (addon.versionAdded && version === getVersion(addon.versionAdded)) {
-			result.push(
-				{ question: QUESTIONS.history.new },
-				{
-					dependencies: { [QUESTIONS.history.new]: true },
+		result.push(
+			{ question: QUESTIONS.history.new },
+			{
+				dependencies: {
+					[QUESTIONS.history.new]: true,
 
-					question: `is this addon found under “${
+					[`is this addon found under **${
 						addon.tags.includes("recommended") || addon.tags.includes("featured")
-							? "Featured"
-							: "Other"
-					} new addons and updates’ as of version ${version}?`,
+							? "Other"
+							: "Featured"
+					} new addons and updates** as of version **[${Util.escapeMarkdown(
+						version,
+					)}](https://github.com/ScratchAddons/ScratchAddons/releases/tag/v${version}.0)**?`]: false,
 				},
-			);
-		}
+
+				question: `is this addon found under **${
+					addon.tags.includes("recommended") || addon.tags.includes("featured")
+						? "Featured"
+						: "Other"
+				} new addons and updates** as of version **[${Util.escapeMarkdown(
+					version,
+				)}](https://github.com/ScratchAddons/ScratchAddons/releases/tag/v${version}.0)**?`,
+			},
+		);
+	}
 
 	if (addon.latestUpdate && version === getVersion(addon.latestUpdate.version)) {
-			result.push(
-				{ question: QUESTIONS.history.updated },
-				{
-					dependencies: { [QUESTIONS.history.updated]: true },
+		result.push(
+			{ question: QUESTIONS.history.updated },
+			{
+				dependencies: {
+					[QUESTIONS.history.updated]: true,
 
-					question: `does this addon have the “${
-						manifest.latestUpdate.newSettings?.length ? "New settings" : "New features"
-					}” tag?`,
+					[`does this addon have the **${
+						manifest.latestUpdate.newSettings?.length ? "New features" : "New settings"
+					}** tag?`]: false,
 				},
-				{
-					dependencies: { [QUESTIONS.history.updated]: true },
 
-					question: `is this addon found under “${
-						manifest.latestUpdate.isMajor ? "Featured" : "Other"
-					} new addons and updates’ as of ${version}?`,
+				question: `does this addon have the **${
+					manifest.latestUpdate.newSettings?.length ? "New settings" : "New features"
+				}** tag?`,
+			},
+			{
+				dependencies: {
+					[QUESTIONS.history.updated]: true,
+
+					[`is this addon found under **${
+						manifest.latestUpdate.isMajor ? "Other" : "Featured"
+					} new addons and updates**’ as of **[${Util.escapeMarkdown(
+						version,
+					)}](https://github.com/ScratchAddons/ScratchAddons/releases/tag/v${version}.0)**?`]: false,
 				},
-			);
-		}
+
+				question: `is this addon found under **${
+					manifest.latestUpdate.isMajor ? "Featured" : "Other"
+				} new addons and updates**’ as of **[${Util.escapeMarkdown(
+					version,
+				)}](https://github.com/ScratchAddons/ScratchAddons/releases/tag/v${version}.0)**?`,
+			},
+		);
+	}
 
 	if (addon.tags.includes("featured")) {
 		result.push({
@@ -579,7 +627,8 @@ function answerQuestion(justAsked, probabilityShift, probabilitiesBefore, askedQ
  *   - The interaction to respond to.
  *
  * @param {string[]} [askedQuestions] - Questions to ignore.
- * @param {[string, number][]} [addonProbabilities] - Current probabilities of each addon being correct.
+ * @param {[string, number][]} [addonProbabilities] - Current probabilities of each addon being
+ *   correct. MUST be sorted.
  * @param {number} [askedCount] - Count of messages that have already been asked.
  *
  * @returns {Promise<Message | undefined>} - Sent message.
@@ -600,14 +649,73 @@ async function reply(
 		return;
 	}
 
-	if (askedCount > 20 && addonProbabilities[1]?.[1] !== addonProbabilities[0]?.[1]) {
+	if (askedCount > 10 && !addonProbabilities[0]?.[1]) {
 		await interaction.reply({
-			content: `${interaction.user.toString()}, You’re thinking of “${
-				addons.find(({ id }) => id === addonProbabilities[0]?.[0])?.name
-			}”!`,
+			content: `${interaction.user.toString()}, I can't give any guesses you if you don't answer my questions!`,
 		});
 
 		return;
+	}
+
+	if (
+		askedCount > 10 &&
+		(addonProbabilities[1]?.[1] || 0) + 5 < (addonProbabilities[0]?.[1] || 0)
+	) {
+		const message = await interaction.reply({
+			components: [
+				new MessageActionRow().addComponents(
+					new MessageButton()
+						.setLabel("No it’s not, continue!")
+						.setStyle("PRIMARY")
+						.setCustomId(generateHash("continue")),
+				),
+			],
+
+			content: `${interaction.user.toString()}, You’re thinking of **${Util.escapeMarkdown(
+				addons.find(({ id }) => id === addonProbabilities[0]?.[0])?.name,
+			)}**!`,
+
+			fetchReply: true,
+		});
+
+		if (!(message instanceof Message)) throw new TypeError("message is not a Message");
+
+		message
+			.createMessageComponentCollector({
+				componentType: "BUTTON",
+				filter: (buttonInteraction) => buttonInteraction.user.id === interaction.user.id,
+				max: 1,
+				time: 30_000,
+			})
+			.on("collect", async (buttonInteraction) => {
+				const nextMessage = await reply(
+					buttonInteraction,
+					askedQuestions,
+					addonProbabilities.slice(1),
+					askedCount + 1,
+				);
+
+				if (nextMessage) CURRENTLY_PLAYING.set(interaction.user.id, nextMessage);
+			})
+			.on(
+				"end",
+				async (collected) =>
+					await interaction.editReply({
+						components: message.components.map((rows) =>
+							rows.type === "ACTION_ROW"
+								? rows.setComponents(
+										rows.components.map((component) =>
+											component.setDisabled(true),
+										),
+								  )
+								: rows,
+						),
+
+						content: message.content,
+					}),
+			);
+
+			return;
 	}
 
 	const message = await interaction.reply({
@@ -669,11 +777,11 @@ async function reply(
 					: buttonInteraction.customId.startsWith("not")
 					? -1
 					: buttonInteraction.customId.startsWith("no")
-					? -2
+					? -3
 					: 0;
 
 				const newProbabilities = answerQuestion(
-					questions[0],
+					questions[0] || "",
 					probabilityShift,
 					addonProbabilities,
 					askedQuestions,
@@ -687,6 +795,7 @@ async function reply(
 				);
 
 				if (nextMessage) CURRENTLY_PLAYING.set(interaction.user.id, nextMessage);
+				else CURRENTLY_PLAYING.delete(interaction.user.id);
 			}
 		})
 		.on("end", async (collected) => {
@@ -695,7 +804,7 @@ async function reply(
 			if (collected.size === 0) {
 				CURRENTLY_PLAYING.delete(interaction.user.id);
 				buttonPromises.push(
-					message.reply(
+					interaction.followUp(
 						`${interaction.user.toString()}, you didn’t answer my question! I’m going to end the game.`,
 					),
 				);
@@ -752,6 +861,7 @@ const info = {
 		const message = await reply(interaction);
 
 		if (message) CURRENTLY_PLAYING.set(interaction.user.id, message);
+		else CURRENTLY_PLAYING.delete(interaction.user.id);
 	},
 };
 
