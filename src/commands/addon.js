@@ -36,40 +36,36 @@ const QUESTIONS = {
 		easterEgg: "is this addon a easter egg addon (shown after typing the Konami code)?",
 
 		editor: {
-			code: "is this addon listed under 'Scratch Editor Features' -> 'Code Editor'?",
-			costumes: "is this addon listed under 'Scratch Editor Features' -> 'Costume Editor'?",
-			other: "is this addon listed under 'Scratch Editor Features' -> 'Others'?",
-			player: "is this addon listed under 'Scratch Editor Features' -> 'Project Player'?",
-			root: "is this addon listed under 'Scratch Editor Features'?",
+			code: "is this addon listed under “Scratch Editor Features” -> “Code Editor”?",
+			costumes: "is this addon listed under “Scratch Editor Features” -> “Costume Editor”?",
+			other: "is this addon listed under “Scratch Editor Features” -> “Others”?",
+			player: "is this addon listed under “Scratch Editor Features” -> “Project Player”?",
+			root: "is this addon listed under “Scratch Editor Features”?",
 		},
 
-		popup: "is this addon listed under 'Extension Popup Features'?",
-		themes: "is this addon listed under 'Themes'?",
+		popup: "is this addon listed under “Extension Popup Features”?",
+		themes: "is this addon listed under “Themes”?",
 
 		website: {
-			forums: "is this addon listed under 'Scratch Website Features' -> 'Forums'?",
-			other: "is this addon listed under 'Scratch Website Features' -> 'Others'?",
-			profiles: "is this addon listed under 'Scratch Website Features' -> 'Profiles'?",
-			projects: "is this addon listed under 'Scratch Website Features' -> 'Project Pages'?",
-			root: "is this addon listed under 'Scratch Website Features'?",
+			forums: "is this addon listed under “Scratch Website Features” -> “Forums”?",
+			other: "is this addon listed under “Scratch Website Features” -> “Others”?",
+			profiles: "is this addon listed under “Scratch Website Features” -> “Profiles”?",
+			projects: "is this addon listed under “Scratch Website Features” -> “Project Pages”?",
+			root: "is this addon listed under “Scratch Website Features”?",
 		},
 	},
 
 	groups: {
-		beta: "is this addon found under 'Beta' when disabled?",
-		featured: "is this addon found under 'Featured' when disabled?",
-		forums: "is this addon found under 'Forums' when disabled?",
-		others: "is this addon found under 'Others' when disabled?",
+		beta: "is this addon found under “Beta” when disabled?",
+		featured: "is this addon found under “Featured” when disabled?",
+		forums: "is this addon found under “Forums” when disabled?",
+		others: "is this addon found under “Others” when disabled?",
 	},
 
 	history: {
-		new: `was this addon added in the latest version (${
-			manifest.version_name || manifest.version
-		})?`,
+		new: `was this addon added in the latest version (${version})?`,
 
-		updated: `was this addon updated (not including completely new addons) in the latest version (${
-			manifest.version_name || manifest.version
-		})?`,
+		updated: `was this addon updated (not including completely new addons) in the latest version (${version})?`,
 	},
 
 	settings: {
@@ -82,21 +78,23 @@ const QUESTIONS = {
 	},
 
 	tags: {
-		beta: "does this addon have the 'Beta' tag?",
-		dangerous: "does this addon have the 'Dangerous' tag?",
-		forums: "does this addon have the 'Forums' tag?",
-		recommended: "does this addon have the 'Recommended' tag?",
+		beta: "does this addon have the “Beta” tag?",
+		dangerous: "does this addon have the “Dangerous” tag?",
+		forums: "does this addon have the “Forums” tag?",
+		recommended: "does this addon have the “Recommended” tag?",
 	},
 };
 
 const firstLetters = Object.fromEntries(
 	addons.map((addon) => [
-		`does this addon's name start with ${addon.name.at(0)?.toUpperCase() || ""}?`,
+		`does this addon’s name start with ${addon.name.at(0)?.toUpperCase() || ""}?`,
 		false,
 	]),
 );
 
 const forceEasterEggs = new Set(["cat-blocks"]);
+
+const version = (/^(?<main>\d+\.\d+.)\d+/).exec(manifest.version).groups.main||manifest.version;
 
 const questionsByAddon = addons.map((addon) => {
 	/** @type {{ question: string; dependencies?: { [key: string]: boolean } }[]} */
@@ -113,7 +111,15 @@ const questionsByAddon = addons.map((addon) => {
 		});
 	}
 
-	if (addon.credits) result.push({ question: QUESTIONS.settings.credits });
+	if (addon.credits) {
+		result.push(
+			{ question: QUESTIONS.settings.credits },
+			...addon.credits.map((credit) => ({
+				question: `did ${credit.name} contribute to this addon?`,
+				dependencies: { [QUESTIONS.settings.credits]: true },
+			})),
+		);
+	}
 
 	if (addon.presets) {
 		result.push({
@@ -129,11 +135,11 @@ const questionsByAddon = addons.map((addon) => {
 			Object.entries(firstLetters).filter(
 				(question) =>
 					question[0] !==
-					`does this addon's name start with ${addon.name.at(0)?.toUpperCase() || ""}?`,
+					`does this addon’s name start with ${addon.name.at(0)?.toUpperCase() || ""}?`,
 			),
 		),
 
-		question: `does this addon's name start with ${addon.name.at(0)?.toUpperCase() || ""}?`,
+		question: `does this addon’s name start with ${addon.name.at(0)?.toUpperCase() || ""}?`,
 	});
 
 	const category = addon.tags.includes("popup")
@@ -163,14 +169,14 @@ const questionsByAddon = addons.map((addon) => {
 					dependencies: {
 						[QUESTIONS.categories.themes]: true,
 
-						[`is this addon listed under 'Themes' -> '${
+						[`is this addon listed under “Themes” -> “${
 							addon.tags.includes("editor") ? "Website" : "Editor"
-						} Themes'?`]: false,
+						} Themes’?`]: false,
 					},
 
-					question: `is this addon listed under 'Themes' -> '${
+					question: `is this addon listed under “Themes” -> “${
 						addon.tags.includes("editor") ? "Editor" : "Website"
-					} Themes'?`,
+					} Themes’?`,
 				},
 			);
 
@@ -330,7 +336,7 @@ const questionsByAddon = addons.map((addon) => {
 		});
 	}
 
-	const [extensionMajor, extensionMinor] = manifest.version.split(".");
+	const [extensionMajor, extensionMinor] = version.split("."); // todo fix
 
 	if (addon.versionAdded) {
 		const [addonMajor, addonMinor] = addon.versionAdded.split(".");
@@ -341,11 +347,11 @@ const questionsByAddon = addons.map((addon) => {
 				{
 					dependencies: { [QUESTIONS.history.new]: true },
 
-					question: `is this addon currently found under '${
+					question: `is this addon found under “${
 						addon.tags.includes("recommended") || addon.tags.includes("featured")
 							? "Featured"
 							: "Other"
-					} new addons and updates'?`,
+					} new addons and updates’ as of version ${version}?`,
 				},
 			);
 		}
@@ -360,16 +366,16 @@ const questionsByAddon = addons.map((addon) => {
 				{
 					dependencies: { [QUESTIONS.history.updated]: true },
 
-					question: `does this addon have the '${
+					question: `does this addon have the “${
 						manifest.latestUpdate.newSettings?.length ? "New settings" : "New features"
-					}' tag?`,
+					}” tag?`,
 				},
 				{
 					dependencies: { [QUESTIONS.history.updated]: true },
 
-					question: `is this addon currently found under '${
+					question: `is this addon found under “${
 						manifest.latestUpdate.isMajor ? "Featured" : "Other"
-					} new addons and updates'?`,
+					} new addons and updates’ as of ${version}?`,
 				},
 			);
 		}
@@ -452,9 +458,9 @@ const allQuestions = questionsByAddon.flatMap(([, addonQuestions]) => addonQuest
  *
  * @param {string[]} [askedQuestions] - Questions to ignore.
  *
- * @returns {string | undefined} - A new question to ask.
+ * @returns {string[] | undefined} - A new question to ask.
  */
-function getNextQuestion(askedQuestions = []) {
+function getNextQuestions(askedQuestions = []) {
 	/** @type {{ [key: string]: number }} */
 	const frequencies = {};
 
@@ -467,13 +473,21 @@ function getNextQuestion(askedQuestions = []) {
 
 	const frequenciesArray = Object.entries(frequencies);
 
-	return frequenciesArray.length > 0
-		? frequenciesArray.reduce((previous, current, _, { length }) =>
-				Math.abs(current[1] / length - 0.5) < Math.abs(previous[1] / length - 0.5)
-					? current
-					: previous,
-		  )[0]
-		: undefined;
+	if (frequenciesArray.length === 0) return;
+
+	return frequenciesArray
+		.sort(() => Math.random() - 0.5)
+		.reduce((previous, current, _, { length }) => {
+			const currentDistance = Math.abs(current[1] / length - 0.5);
+			const previousDistance = Math.abs((previous[0]?.[1] || 0) / length - 0.5);
+
+			return currentDistance < previousDistance
+				? [current]
+				: currentDistance > previousDistance
+				? previous
+				: [...previous, current];
+		}, /** @type {typeof frequenciesArray} */ ([]))
+		.map(([question]) => question);
 }
 
 /**
@@ -482,7 +496,7 @@ function getNextQuestion(askedQuestions = []) {
  * @param {string} justAsked - The question that was answered.
  * @param {number} probabilityShift - How much to care.
  * @param {[string, number][]} probabilitiesBefore - The probabilities of addons before this question.
- * @param {string[]} askedQuestions - Questions that were already asked. This function will be
+ * @param {string[]} [askedQuestions] - Questions that were already asked. This function will be
  *   modify this array.
  *
  * @returns {[string, number][]} - The new probabilities.
@@ -566,7 +580,8 @@ function answerQuestion(justAsked, probabilityShift, probabilitiesBefore, askedQ
  *   - The interaction to respond to.
  *
  * @param {string[]} [askedQuestions] - Questions to ignore.
- * @param {[string, number][]} addonProbabilities - Current probabilities of each addon being correct.
+ * @param {[string, number][]} [addonProbabilities] - Current probabilities of each addon being correct.
+ * @param {number} [askedCount] - Count of messages that have already been asked.
  *
  * @returns {Promise<Message | undefined>} - Sent message.
  */
@@ -574,11 +589,24 @@ async function reply(
 	interaction,
 	askedQuestions = [],
 	addonProbabilities = addons.map((addon) => /** @type {[string, number]} */ ([addon.id, 0])),
+	askedCount = 0,
 ) {
-	const question = getNextQuestion(askedQuestions);
+	const questions = getNextQuestions(askedQuestions);
 
-	if (!question) {
-		await interaction.reply({ content: "I have no more questions." });
+	if (!questions?.[0]) {
+		await interaction.reply({
+			content: `${interaction.user.toString()}, you beat me! How *did* you do that?`,
+		});
+
+		return;
+	}
+
+	if (askedCount > 20 && addonProbabilities[1]?.[1] !== addonProbabilities[0]?.[1]) {
+		await interaction.reply({
+			content: `${interaction.user.toString()}, You’re thinking of “${
+				addons.find(({ id }) => id === addonProbabilities[0]?.[0])?.name
+			}”!`,
+		});
 
 		return;
 	}
@@ -591,15 +619,15 @@ async function reply(
 					.setStyle("SUCCESS")
 					.setCustomId(generateHash("yes")),
 				new MessageButton()
-					.setLabel("Probably")
-					.setStyle("PRIMARY")
+					.setLabel("I think so")
+					.setStyle("SUCCESS")
 					.setCustomId(generateHash("probably")),
 				new MessageButton()
-					.setLabel("I don't know")
-					.setStyle("SECONDARY")
+					.setLabel("I don’t know")
+					.setStyle("PRIMARY")
 					.setCustomId(generateHash("dontKnow")),
 				new MessageButton()
-					.setLabel("Probably not")
+					.setLabel("I don’t think so")
 					.setStyle("DANGER")
 					.setCustomId(generateHash("not")),
 				new MessageButton()
@@ -615,7 +643,7 @@ async function reply(
 			),
 		],
 
-		content: `${interaction.user.toString()}, ${question}`,
+		content: `${interaction.user.toString()}, ${questions[0]}`,
 		fetchReply: true,
 	});
 
@@ -646,18 +674,17 @@ async function reply(
 					: 0;
 
 				const newProbabilities = answerQuestion(
-					question,
+					questions[0],
 					probabilityShift,
 					addonProbabilities,
 					askedQuestions,
 				);
 
-				await interaction.channel?.send(JSON.stringify(newProbabilities[0]));
-
 				const nextMessage = await reply(
 					buttonInteraction,
 					askedQuestions,
 					newProbabilities,
+					askedCount + 1,
 				);
 
 				if (nextMessage) CURRENTLY_PLAYING.set(interaction.user.id, nextMessage);
@@ -670,7 +697,7 @@ async function reply(
 				CURRENTLY_PLAYING.delete(interaction.user.id);
 				buttonPromises.push(
 					message.reply(
-						`${interaction.user.toString()}, timed out: no answer was given.`,
+						`${interaction.user.toString()}, you didn’t answer my question! I’m going to end the game.`,
 					),
 				);
 			}
@@ -696,9 +723,7 @@ async function reply(
 
 /** @type {import("../../types/command").default} */
 const info = {
-	data: new SlashCommandBuilder().setDescription(
-		"Replies with information about a specific addon.",
-	),
+	data: new SlashCommandBuilder().setDescription("You think of an addon and I guess!"),
 
 	async interaction(interaction) {
 		const current = CURRENTLY_PLAYING.get(interaction.user.id);
