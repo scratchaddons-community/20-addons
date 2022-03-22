@@ -121,7 +121,7 @@ const QUESTIONS = {
 
 		others: {
 			question: "is your addon found under **Others** when disabled?",
-			statement: "This addon is found under **Beta** when disabled",
+			statement: "This addon is found under **Others** when disabled",
 		},
 	},
 

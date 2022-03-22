@@ -27,17 +27,36 @@ function getNextQuestions(addonProbabilities, askedQuestions = []) {
 	/** @type {{ [key: string]: number }} */
 	const frequencies = {};
 
-	for (const question of questionsByAddon
-		.map(([addon, questions]) =>
-			Array.from({
-				length: Math.round(
-					Math.max(addonProbabilities.find(([id]) => id === addon)?.[1] || 0, 1),
+	for (const question of /**
+	 * @type {{
+	 * 	question: string;
+	 * 	statement: string;
+	 * 	dependencies?:
+	 * 		| {
+	 * 				[key: string]: boolean;
+	 * 		  }
+	 * 		| undefined;
+	 * }[]}
+	 */ (
+		questionsByAddon
+			.map(([addon, questions]) =>
+				Array.from({
+					length: Math.round(
+						((Array.from(addonProbabilities)
+							.reverse()
+							.findIndex(([id]) => id === addon) || 0) +
+							1) /
+							addonProbabilities.length +
+							((addonProbabilities.find(([id]) => id === addon)?.[1] || 0) + 1),
+					),
+				}).fill(
+					questions.filter(
+						(questionInfo) => !askedQuestions.includes(questionInfo.question),
+					),
 				),
-			}).fill(
-				questions.filter((questionInfo) => !askedQuestions.includes(questionInfo.question)),
-			),
-		)
-		.flat(Number.POSITIVE_INFINITY)) {
+			)
+			.flat(Number.POSITIVE_INFINITY)
+	)) {
 		frequencies[`${question.question}`] ??= 0;
 		frequencies[`${question.question}`]++;
 	}
@@ -151,8 +170,18 @@ function answerQuestion(justAsked, probabilityShift, probabilitiesBefore, askedQ
  * @param {[string, number][]} addonProbabilities - The probabilities of each addon being correct.
  * @param {number} askedCount - How many questions have been asked already.
  * @param {string[]} askedQuestions - Questions that should not be asked.
+ * @param {| false
+ * 	| string
+ * 	| { probabilities: [string, number][]; askedQuestions: string[]; justAsked: string }} backInfo
+ *   - Information about the previous question.
  */
-async function answerWithAddon(interaction, addonProbabilities, askedCount, askedQuestions) {
+async function answerWithAddon(
+	interaction,
+	addonProbabilities,
+	askedCount,
+	askedQuestions,
+	backInfo,
+) {
 	const foundAddon = addons.find(({ id }) => id === addonProbabilities[0]?.[0]);
 
 	if (!foundAddon) {
@@ -168,6 +197,15 @@ async function answerWithAddon(interaction, addonProbabilities, askedCount, aske
 	const message = await interaction.reply({
 		components: [
 			new MessageActionRow().addComponents(
+				...(typeof backInfo === "object"
+					? [
+							new MessageButton()
+								.setLabel("Back")
+								.setStyle("SECONDARY")
+								.setCustomId(generateHash("back")),
+					  ]
+					: []),
+
 				new MessageButton()
 					.setLabel("No it’s not, continue!")
 					.setStyle("PRIMARY")
@@ -228,19 +266,46 @@ async function answerWithAddon(interaction, addonProbabilities, askedCount, aske
 
 	if (!(message instanceof Message)) throw new TypeError("message is not a Message");
 
-	message
-		.createMessageComponentCollector({
-			componentType: "BUTTON",
-			filter: (buttonInteraction) => buttonInteraction.user.id === interaction.user.id,
-			max: 1,
-			time: 30_000,
-		})
+	CURRENTLY_PLAYING.delete(interaction.user.id)
+
+	const collector = message.createMessageComponentCollector({
+		componentType: "BUTTON",
+		filter: (buttonInteraction) => buttonInteraction.user.id === interaction.user.id,
+		max: 1,
+		time: 30_000,
+	});
+
+	collector
 		.on("collect", async (buttonInteraction) => {
 			if (CURRENTLY_PLAYING.has(interaction.user.id)) {
 				await interaction.reply({
 					content: `${interaction.user.toString()}, you already started a new game!`,
 					ephemeral: true,
 				});
+
+				return;
+			}
+
+			if (buttonInteraction.customId.startsWith("back")) {
+				if (typeof backInfo !== "object") {
+					await buttonInteraction.reply({
+						content: `${interaction.user.toString()}, you can't go back here!`,
+						ephemeral: true,
+					});
+					collector.resetTimer();
+
+					return;
+				}
+
+				const nextMessage = await reply(
+					buttonInteraction,
+					backInfo.askedQuestions,
+					backInfo.probabilities,
+					askedCount - 1,
+					backInfo.justAsked,
+				);
+
+				if (nextMessage) CURRENTLY_PLAYING.set(interaction.user.id, nextMessage);
 
 				return;
 			}
@@ -282,7 +347,8 @@ const CURRENTLY_PLAYING = new Collection();
  *   correct. MUST be sorted.
  * @param {number} [askedCount] - Count of messages that have already been asked.
  * @param {| false
- * 	| { question: string; probabilities: [string, number][]; askedQuestions: string[] }} [backInfo]
+ * 	| string
+ * 	| { probabilities: [string, number][]; askedQuestions: string[]; justAsked: string }} [backInfo]
  *   - Information about the previous question.
  *
  *
@@ -295,7 +361,10 @@ async function reply(
 	askedCount = 0,
 	backInfo = false,
 ) {
-	const questions = getNextQuestions(addonProbabilities, askedQuestions);
+	const questions =
+		typeof backInfo === "string"
+			? [backInfo]
+			: getNextQuestions(addonProbabilities, askedQuestions);
 
 	if (process.env.NODE_ENV !== "production")
 		console.log(addonProbabilities[0], addonProbabilities[1], addonProbabilities[3]);
@@ -304,22 +373,26 @@ async function reply(
 		askedCount > 5 &&
 		(addonProbabilities[1]?.[1] || 0) + 4 < (addonProbabilities[0]?.[1] || 0)
 	) {
-		await answerWithAddon(interaction, addonProbabilities, askedCount, askedQuestions);
-
-		return;
-	}
-
-	if (askedCount === 10 && !addonProbabilities[0]?.[1]) {
-		await interaction.reply({
-			content: `${interaction.user.toString()}, I can't give you any questions if you don't answer them!`,
-		});
+		await answerWithAddon(
+			interaction,
+			addonProbabilities,
+			askedCount,
+			askedQuestions,
+			backInfo,
+		);
 
 		return;
 	}
 
 	if (!questions?.[0]) {
 		if ((addonProbabilities[1]?.[1] || 0) < (addonProbabilities[0]?.[1] || 0)) {
-			await answerWithAddon(interaction, addonProbabilities, askedCount, askedQuestions);
+			await answerWithAddon(
+				interaction,
+				addonProbabilities,
+				askedCount,
+				askedQuestions,
+				backInfo,
+			);
 
 			return;
 		}
@@ -329,6 +402,8 @@ async function reply(
 				manifest.version
 			})`,
 		});
+
+		CURRENTLY_PLAYING.delete(interaction.user.id);
 
 		return;
 	}
@@ -358,7 +433,7 @@ async function reply(
 					.setCustomId(generateHash("no")),
 			),
 			new MessageActionRow().addComponents(
-				...(backInfo
+				...(typeof backInfo === "object"
 					? [
 							new MessageButton()
 								.setLabel("Back")
@@ -379,6 +454,8 @@ async function reply(
 
 	if (!(message instanceof Message)) throw new TypeError("message is not a Message");
 
+	CURRENTLY_PLAYING.set(interaction.user.id,message.d);
+
 	const collector = message.createMessageComponentCollector({
 		componentType: "BUTTON",
 		filter: (buttonInteraction) => buttonInteraction.user.id === interaction.user.id,
@@ -395,7 +472,7 @@ async function reply(
 
 				collector.stop();
 			} else if (buttonInteraction.customId.startsWith("back")) {
-				if (!backInfo) {
+				if (typeof backInfo !== "object") {
 					await buttonInteraction.reply({
 						content: `${interaction.user.toString()}, you can't go back here!`,
 						ephemeral: true,
@@ -410,6 +487,7 @@ async function reply(
 					backInfo.askedQuestions,
 					backInfo.probabilities,
 					askedCount - 1,
+					backInfo.justAsked,
 				);
 
 				if (nextMessage) CURRENTLY_PLAYING.set(interaction.user.id, nextMessage);
@@ -442,8 +520,8 @@ async function reply(
 					askedCount + 1,
 					{
 						askedQuestions: previouslyAsked,
+						justAsked: questions[0] || "",
 						probabilities: addonProbabilities,
-						question: questions[0] || "",
 					},
 				);
 
@@ -521,10 +599,7 @@ const info = {
 			return;
 		}
 
-		const message = await reply(interaction);
-
-		if (message) CURRENTLY_PLAYING.set(interaction.user.id, message);
-		else CURRENTLY_PLAYING.delete(interaction.user.id);
+		await reply(interaction);
 	},
 };
 
