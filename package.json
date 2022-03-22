@@ -19,7 +19,7 @@
 		"ci": "npm i && npm run format && npm run types && npm run lint",
 		"dev": "nodemon -- . --harmony --trace-warnings",
 		"format": "prettier --write \"**\" --ignore-unknown && prettier-package-json --write",
-		"lint": "cd \"node_modules/@redguy12/eslint-config/\" && npx eslint ../../../ --resolve-plugins-relative-to . --fix && cd \"../../../\"",
+		"lint": "cd \"node_modules/@redguy12/eslint-config/\" && npx eslint ../../../ --resolve-plugins-relative-to . --fix --cache --cache-location ../../../.eslintcache && cd \"../../../\"",
 		"start": "node . --harmony --trace-warnings",
 		"types": "tsc -p jsconfig.json"
 	},

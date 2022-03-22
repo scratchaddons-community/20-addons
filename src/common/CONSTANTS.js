@@ -1,6 +1,6 @@
 /** @file Constants That are reused in multiple places. */
 const CONSTANTS = {
-	colors: { theme: 0xff7b26 },
+	themeColor: 0xff7b26,
 
 	emojis: {
 		dontKnow: "<:gray:954021160813727764>",

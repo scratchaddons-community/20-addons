@@ -62,7 +62,9 @@ for (const [event, execute] of events.entries()) {
 					.setDescription(
 						`Uh-oh! I found an error! (event **${Util.escapeMarkdown(
 							event,
-						)}**)\n\`\`\`json\n${Util.cleanCodeBlockContent(JSON.stringify(error))}\`\`\``,
+						)}**)\n\`\`\`json\n${Util.cleanCodeBlockContent(
+							JSON.stringify(error),
+						)}\`\`\``,
 					)
 					.setColor("LUMINOUS_VIVID_PINK");
 				const { LOGS_CHANNEL } = process.env;
