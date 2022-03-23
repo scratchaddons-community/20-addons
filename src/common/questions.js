@@ -19,8 +19,9 @@ const version = trimPatchVersion(manifest.version);
 const QUESTIONS = {
 	categories: {
 		easterEgg: {
-			question: "is your addon a easter egg addon (shown after typing the Konami code)?",
+			question: "is your addon an easter egg addon (shown after typing the Konami code)?",
 			statement: "This addon is an easter egg addon!",
+			userAsking: "Is this addon an easter egg addon?",
 		},
 
 		editor: {
@@ -30,6 +31,8 @@ const QUESTIONS = {
 
 				statement:
 					"You addon is listed under **Scratch Editor Features** -> **Code Editor**!",
+
+				userAsking: "Is this addon listed under Scratch Editor Features -> Code Editor?",
 			},
 
 			costumes: {
@@ -38,11 +41,14 @@ const QUESTIONS = {
 
 				statement:
 					"This addon is listed under **Scratch Editor Features** -> **Costume Editor**!",
+
+				userAsking: "Is this addon listed under Scratch Editor Features -> Costume Editor?",
 			},
 
 			other: {
 				question: "is your addon listed under **Scratch Editor Features** -> **Others**?",
 				statement: "This addon is listed under **Scratch Editor Features** -> **Others**!",
+				userAsking: "Is this addon listed under Scratch Editor Features -> Others?",
 			},
 
 			player: {
@@ -51,33 +57,40 @@ const QUESTIONS = {
 
 				statement:
 					"This addon is listed under **Scratch Editor Features** -> **Project Player**!",
+
+				userAsking: "Is this addon listed under Scratch Editor Features -> Project Player?",
 			},
 
 			root: {
 				question: "is your addon listed under **Scratch Editor Features**?",
 				statement: "This addon is listed under **Scratch Editor Features**!",
+				userAsking: "Is this addon listed under Scratch Editor Features?",
 			},
 		},
 
 		popup: {
 			question: "is your addon listed under **Extension Popup Features**?",
 			statement: "This addon is listed under **Extension Popup Features**!",
+			userAsking: "Is this addon listed under Extension Popup Features?",
 		},
 
 		themes: {
 			question: "is your addon listed under **Themes**?",
 			statement: "This addon is listed under **Themes**!",
+			userAsking: "Is this addon is listed under Themes?",
 		},
 
 		website: {
 			forums: {
 				question: "is your addon listed under **Scratch Website Features** -> **Forums**?",
 				statement: "This addon is listed under **Scratch Website Features** -> **Forums**!",
+				userAsking: "Is this addon listed under Scratch Website Features -> Forums?",
 			},
 
 			other: {
 				question: "is your addon listed under **Scratch Website Features** -> **Others**?",
 				statement: "This addon is listed under **Scratch Website Features** -> **Others**!",
+				userAsking: "Is this addon listed under Scratch Website Features -> Others?",
 			},
 
 			profiles: {
@@ -86,6 +99,8 @@ const QUESTIONS = {
 
 				statement:
 					"This addon is listed under **Scratch Website Features** -> **Profiles**!",
+
+				userAsking: "Is this addon listed under Scratch Website Features -> Profiles?",
 			},
 
 			projects: {
@@ -94,11 +109,14 @@ const QUESTIONS = {
 
 				statement:
 					"This addon is listed under **Scratch Website Features** -> **Project Pages**!",
+
+				userAsking: "Is this addon listed under Scratch Website Features -> Project Pages?",
 			},
 
 			root: {
 				question: "is your addon listed under **Scratch Website Features**?",
 				statement: "This addon is listed under **Scratch Website Features**!",
+				userAsking: "Is this addon listed under Scratch Website Features?",
 			},
 		},
 	},
@@ -107,21 +125,25 @@ const QUESTIONS = {
 		beta: {
 			question: "is your addon found under **Beta** when disabled?",
 			statement: "This addon is found under **Beta** when disabled!",
+			userAsking: "Is this addon found under Beta when disabled?",
 		},
 
 		featured: {
 			question: "is your addon found under **Featured** when disabled?",
 			statement: "This addon is found under **Featured** when disabled!",
+			userAsking: "Is this addon found under Featured when disabled?",
 		},
 
 		forums: {
 			question: "is your addon found under **Forums** when disabled?",
 			statement: "This addon is found under **Forums** when disabled",
+			userAsking: "Is this addon found under Forums when disabled?",
 		},
 
 		others: {
 			question: "is your addon found under **Others** when disabled?",
 			statement: "This addon is found under **Others** when disabled",
+			userAsking: "Is this addon found under Others when disabled?",
 		},
 	},
 
@@ -134,6 +156,7 @@ const QUESTIONS = {
 			)}.0)**)?`,
 
 			statement: "This addon was added in the latest version!",
+			userAsking: "Was this addon added in the latest version?",
 		},
 
 		updated: {
@@ -144,6 +167,7 @@ const QUESTIONS = {
 			)}.0)**)?`,
 
 			statement: "This addon was updated in the latest version!",
+			userAsking: "Was this addon updated in the latest version?",
 		},
 	},
 
@@ -151,31 +175,37 @@ const QUESTIONS = {
 		credits: {
 			question: "does your addon have credits listed on the settings page?",
 			statement: "This addon has credits listed on the settings page!",
+			userAsking: "Does this addon have credits listed on the settings page?",
 		},
 
 		enabledDefault: {
 			question: "is your addon enabled by default?",
 			statement: "This addon is enabled by default!",
+			userAsking: "Is this addon enabled by default?",
 		},
 
 		info: {
 			question: "does your addon have any warnings and/or notices on the settings page?",
 			statement: "This addon has warnings and/or notices on the settings page!",
+			userAsking: "Does this addon have any warnings and/or notices on the settings page?",
 		},
 
 		presets: {
 			question: "does your addon have any presets for its settings?",
 			statement: "This addon has presets for its settings!",
+			userAsking: "Does this addon have any presets for its settings?",
 		},
 
 		preview: {
 			question: "does your addon have an interactive preview for its settings?",
 			statement: "This addon has an interactive preview for its settings!",
+			userAsking: "Does this addon have an interactive preview for its settings?",
 		},
 
 		settings: {
 			question: "does your addon have any settings?",
 			statement: "This addon has settings!",
+			userAsking: "Does this addon have any settings?",
 		},
 	},
 
@@ -183,21 +213,25 @@ const QUESTIONS = {
 		beta: {
 			question: "does your addon have the **Beta** tag?",
 			statement: "This addon has the **Beta** tag!",
+			userAsking: "Does this addon have the Beta tag?",
 		},
 
 		dangerous: {
 			question: "does your addon have the **Dangerous** tag?",
 			statement: "This addon has the **Dangerous** tag!",
+			userAsking: "Does this addon have the Dangerous tag?",
 		},
 
 		forums: {
 			question: "does your addon have the **Forums** tag?",
 			statement: "This addon has the **Forums** tag!",
+			userAsking: "Does this addon have the Forums tag?",
 		},
 
 		recommended: {
 			question: "does your addon have the **Recommended** tag?",
 			statement: "This addon has the **Recommended** tag!",
+			userAsking: "Does this addon have the Recommended tag?",
 		},
 	},
 };
@@ -207,9 +241,12 @@ const forceEasterEggs = new Set(["cat-blocks"]);
 const questionsByAddon = addons.map((addon) => {
 	/**
 	 * @type {{
+	 * 	dependencies?: { [key: string]: boolean };
+	 * 	group: string;
 	 * 	question: string;
 	 * 	statement: string;
-	 * 	dependencies?: { [key: string]: boolean };
+	 * 	userAsking: string;
+	 * 	order?: number;
 	 * }[]}
 	 */
 	const result = [];
@@ -220,7 +257,7 @@ const questionsByAddon = addons.map((addon) => {
 				addons
 					.map(({ name }) => [
 						`does your addon’s name **start** with **${Util.escapeMarkdown(
-							name.at(0)?.toUpperCase() || "",
+							name[0]?.toUpperCase() || "",
 						)}**?`,
 						false,
 					])
@@ -228,18 +265,23 @@ const questionsByAddon = addons.map((addon) => {
 						([question]) =>
 							question !==
 							`does your addon’s name **start** with **${Util.escapeMarkdown(
-								addon.name.at(0)?.toUpperCase() || "",
+								addon.name[0]?.toUpperCase() || "",
 							)}**?`,
 					),
 			),
 
+			group: "Addon name",
+			order: 1,
+
 			question: `does your addon’s name **start** with **${Util.escapeMarkdown(
-				addon.name.at(0)?.toUpperCase() || "",
+				addon.name[0]?.toUpperCase() || "",
 			)}**?`,
 
 			statement: `This addon’s name starts with **${Util.escapeMarkdown(
-				addon.name.at(0)?.toUpperCase() || "",
+				addon.name[0]?.toUpperCase() || "",
 			)}**!`,
+
+			userAsking: `Does this addon’s name start with ${addon.name[0]?.toUpperCase() || ""}?`,
 		},
 		{
 			dependencies: Object.fromEntries(
@@ -259,6 +301,9 @@ const questionsByAddon = addons.map((addon) => {
 					),
 			),
 
+			group: "Addon name",
+			order: 2,
+
 			question: `does your addon’s name **end** with **${Util.escapeMarkdown(
 				addon.name.at(-1)?.toUpperCase() || "",
 			)}**?`,
@@ -266,13 +311,18 @@ const questionsByAddon = addons.map((addon) => {
 			statement: `This addon’s name ends with **${Util.escapeMarkdown(
 				addon.name.at(-1)?.toUpperCase() || "",
 			)}**!`,
+
+			userAsking: `Does this addon’s name end with ${addon.name[0]?.toUpperCase() || ""}?`,
 		},
 	);
 
 	if (addon.enabledByDefault) {
 		result.push({
+			group: "Misc",
+			order: 1,
 			question: QUESTIONS.settings.enabledDefault.question,
 			statement: QUESTIONS.settings.enabledDefault.statement,
+			userAsking: QUESTIONS.settings.enabledDefault.userAsking,
 		});
 	}
 
@@ -300,8 +350,11 @@ const questionsByAddon = addons.map((addon) => {
 							: false,
 					},
 
+					group: "Categorization",
+					order: 20,
 					question: QUESTIONS.categories.themes.question,
 					statement: QUESTIONS.categories.themes.statement,
+					userAsking: QUESTIONS.categories.themes.userAsking,
 				},
 				{
 					dependencies: {
@@ -312,6 +365,9 @@ const questionsByAddon = addons.map((addon) => {
 						} Themes**?`]: false,
 					},
 
+					group: "Categorization",
+					order: 21,
+
 					question: `is your addon listed under **Themes** -> **${
 						addon.tags.includes("editor") ? "Editor" : "Website"
 					} Themes**?`,
@@ -319,6 +375,10 @@ const questionsByAddon = addons.map((addon) => {
 					statement: `This addon is listed under **Themes** -> **${
 						addon.tags.includes("editor") ? "Editor" : "Website"
 					} Themes**!`,
+
+					userAsking: `Is this addon listed under Themes -> ${
+						addon.tags.includes("editor") ? "Editor" : "Website"
+					} Themes?`,
 				},
 			);
 
@@ -336,8 +396,11 @@ const questionsByAddon = addons.map((addon) => {
 						: false,
 				},
 
+				group: "Categorization",
+				order: 10,
 				question: QUESTIONS.categories.editor.root.question,
 				statement: QUESTIONS.categories.editor.root.statement,
+				userAsking: QUESTIONS.categories.editor.root.userAsking,
 			});
 
 			if (addon.tags.includes("codeEditor")) {
@@ -349,8 +412,11 @@ const questionsByAddon = addons.map((addon) => {
 						[QUESTIONS.categories.editor.player.question]: false,
 					},
 
+					group: "Categorization",
+					order: 11,
 					question: QUESTIONS.categories.editor.code.question,
 					statement: QUESTIONS.categories.editor.code.statement,
+					userAsking: QUESTIONS.categories.editor.code.userAsking,
 				});
 			} else if (addon.tags.includes("costumeEditor")) {
 				result.push({
@@ -361,8 +427,11 @@ const questionsByAddon = addons.map((addon) => {
 						[QUESTIONS.categories.editor.player.question]: false,
 					},
 
+					group: "Categorization",
+					order: 12,
 					question: QUESTIONS.categories.editor.costumes.question,
 					statement: QUESTIONS.categories.editor.costumes.statement,
+					userAsking: QUESTIONS.categories.editor.costumes.userAsking,
 				});
 			} else if (addon.tags.includes("projectPlayer")) {
 				result.push({
@@ -373,8 +442,11 @@ const questionsByAddon = addons.map((addon) => {
 						[QUESTIONS.categories.editor.other.question]: false,
 					},
 
+					group: "Categorization",
+					order: 13,
 					question: QUESTIONS.categories.editor.player.question,
 					statement: QUESTIONS.categories.editor.player.statement,
+					userAsking: QUESTIONS.categories.editor.player.userAsking,
 				});
 			} else {
 				result.push({
@@ -385,8 +457,11 @@ const questionsByAddon = addons.map((addon) => {
 						[QUESTIONS.categories.editor.player.question]: false,
 					},
 
+					group: "Categorization",
+					order: 14,
 					question: QUESTIONS.categories.editor.other.question,
 					statement: QUESTIONS.categories.editor.other.statement,
+					userAsking: QUESTIONS.categories.editor.other.userAsking,
 				});
 			}
 
@@ -402,8 +477,11 @@ const questionsByAddon = addons.map((addon) => {
 						[QUESTIONS.categories.website.forums.question]: false,
 					},
 
+					group: "Categorization",
+					order: 17,
 					question: QUESTIONS.categories.website.profiles.question,
 					statement: QUESTIONS.categories.website.profiles.statement,
+					userAsking: QUESTIONS.categories.website.profiles.userAsking,
 				});
 			} else if (addon.tags.includes("projectPage")) {
 				result.push({
@@ -414,8 +492,11 @@ const questionsByAddon = addons.map((addon) => {
 						[QUESTIONS.categories.website.forums.question]: false,
 					},
 
+					group: "Categorization",
+					order: 16,
 					question: QUESTIONS.categories.website.projects.question,
 					statement: QUESTIONS.categories.website.projects.statement,
+					userAsking: QUESTIONS.categories.website.projects.userAsking,
 				});
 			} else if (addon.tags.includes("forums")) {
 				result.push({
@@ -426,8 +507,11 @@ const questionsByAddon = addons.map((addon) => {
 						[QUESTIONS.categories.website.other.question]: false,
 					},
 
+					group: "Categorization",
+					order: 18,
 					question: QUESTIONS.categories.website.forums.question,
 					statement: QUESTIONS.categories.website.forums.statement,
+					userAsking: QUESTIONS.categories.website.forums.userAsking,
 				});
 			} else {
 				result.push({
@@ -438,8 +522,11 @@ const questionsByAddon = addons.map((addon) => {
 						[QUESTIONS.categories.website.forums.question]: false,
 					},
 
+					group: "Categorization",
+					order: 19,
 					question: QUESTIONS.categories.website.other.question,
 					statement: QUESTIONS.categories.website.other.statement,
+					userAsking: QUESTIONS.categories.website.other.userAsking,
 				});
 			}
 
@@ -450,8 +537,11 @@ const questionsByAddon = addons.map((addon) => {
 					[QUESTIONS.categories.popup.question]: false,
 				},
 
+				group: "Categorization",
+				order: 15,
 				question: QUESTIONS.categories.website.root.question,
 				statement: QUESTIONS.categories.website.root.statement,
+				userAsking: QUESTIONS.categories.website.root.userAsking,
 			});
 
 			break;
@@ -464,8 +554,11 @@ const questionsByAddon = addons.map((addon) => {
 					[QUESTIONS.categories.website.root.question]: false,
 				},
 
+				group: "Categorization",
+				order: 22,
 				question: QUESTIONS.categories.popup.question,
 				statement: QUESTIONS.categories.popup.statement,
+				userAsking: QUESTIONS.categories.popup.userAsking,
 			});
 
 			break;
@@ -479,8 +572,11 @@ const questionsByAddon = addons.map((addon) => {
 					[QUESTIONS.categories.website.root.question]: false,
 				},
 
+				group: "Categorization",
+				order: 23,
 				question: QUESTIONS.categories.easterEgg.question,
 				statement: QUESTIONS.categories.easterEgg.statement,
+				userAsking: QUESTIONS.categories.easterEgg.userAsking,
 			});
 
 			break;
@@ -489,8 +585,10 @@ const questionsByAddon = addons.map((addon) => {
 
 	if (forceEasterEggs.has(addon.id)) {
 		result.push({
+			group: "Categorization",
 			question: QUESTIONS.categories.easterEgg.question,
 			statement: QUESTIONS.categories.easterEgg.statement,
+			userAsking: QUESTIONS.categories.easterEgg.userAsking,
 		});
 	}
 
@@ -502,8 +600,11 @@ const questionsByAddon = addons.map((addon) => {
 				[QUESTIONS.groups.others.question]: false,
 			},
 
+			group: "Categorization",
 			question: QUESTIONS.tags.recommended.question,
 			statement: QUESTIONS.tags.recommended.statement,
+			order: 1,
+			userAsking: QUESTIONS.tags.recommended.userAsking,
 		});
 	} else if (addon.tags.includes("featured")) {
 		result.push({
@@ -514,8 +615,11 @@ const questionsByAddon = addons.map((addon) => {
 				[QUESTIONS.tags.recommended.question]: false,
 			},
 
+			group: "Categorization",
+			order: 5,
 			question: QUESTIONS.groups.featured.question,
 			statement: QUESTIONS.groups.featured.statement,
+			userAsking: QUESTIONS.groups.featured.userAsking,
 		});
 	} else if (addon.tags.includes("beta") || addon.tags.includes("danger")) {
 		result.push({
@@ -525,8 +629,11 @@ const questionsByAddon = addons.map((addon) => {
 				[QUESTIONS.groups.others.question]: false,
 			},
 
+			group: "Categorization",
+			order: 7,
 			question: QUESTIONS.groups.beta.question,
 			statement: QUESTIONS.groups.beta.statement,
+			userAsking: QUESTIONS.groups.beta.userAsking,
 		});
 	} else if (addon.tags.includes("forums")) {
 		result.push({
@@ -537,8 +644,11 @@ const questionsByAddon = addons.map((addon) => {
 				[QUESTIONS.groups.others.question]: false,
 			},
 
+			group: "Categorization",
+			order: 6,
 			question: QUESTIONS.groups.forums.question,
 			statement: QUESTIONS.groups.forums.statement,
+			userAsking: QUESTIONS.groups.forums.userAsking,
 		});
 	} else {
 		result.push({
@@ -549,84 +659,117 @@ const questionsByAddon = addons.map((addon) => {
 				[QUESTIONS.tags.forums.question]: false,
 			},
 
+			group: "Categorization",
+			order: 8,
 			question: QUESTIONS.groups.others.question,
 			statement: QUESTIONS.groups.others.statement,
+			userAsking: QUESTIONS.groups.others.userAsking,
 		});
 	}
 
 	if (addon.tags.includes("danger")) {
 		result.push({
 			dependencies: { [QUESTIONS.groups.beta.question]: true },
+			group: "Categorization",
+			order: 4,
 			question: QUESTIONS.tags.dangerous.question,
 			statement: QUESTIONS.tags.dangerous.statement,
+			userAsking: QUESTIONS.tags.dangerous.userAsking,
 		});
 	}
 
 	if (addon.tags.includes("forums")) {
 		result.push({
 			dependencies: { [QUESTIONS.groups.others.question]: false },
+			group: "Categorization",
+			order: 2,
 			question: QUESTIONS.tags.forums.question,
 			statement: QUESTIONS.tags.forums.statement,
+			userAsking: QUESTIONS.tags.forums.userAsking,
 		});
 	}
 
 	if (addon.tags.includes("beta")) {
 		result.push({
 			dependencies: { [QUESTIONS.groups.beta.question]: true },
+			group: "Categorization",
+			order: 3,
 			question: QUESTIONS.tags.beta.question,
 			statement: QUESTIONS.tags.beta.statement,
-		});
-	}
-
-	if (addon.info) {
-		result.push({
-			question: QUESTIONS.settings.info.question,
-			statement: QUESTIONS.settings.info.statement,
+			userAsking: QUESTIONS.tags.beta.userAsking,
 		});
 	}
 
 	if (addon.credits) {
 		result.push(
 			{
+				group: "Credits",
+				order: 1,
 				question: QUESTIONS.settings.credits.question,
 				statement: QUESTIONS.settings.credits.statement,
+				userAsking: QUESTIONS.settings.credits.userAsking,
 			},
 			...addon.credits.map(({ name }) => ({
 				dependencies: { [QUESTIONS.settings.credits.question]: true },
+				group: "Credits",
+				order: 2,
 				question: `did **${Util.escapeMarkdown(name)}** contribute to your addon?`,
 				statement: `**${Util.escapeMarkdown(name)}** contributed to this addon!`,
+				userAsking: `Did ${name} contribute to this addon?`,
 			})),
 		);
 	}
 
 	if (addon.settings) {
 		result.push({
+			group: "Misc",
+			order: 2,
 			question: QUESTIONS.settings.settings.question,
 			statement: QUESTIONS.settings.settings.statement,
+			userAsking: QUESTIONS.settings.settings.userAsking,
 		});
 	}
 
 	if (addon.presets) {
 		result.push({
 			dependencies: { [QUESTIONS.settings.settings.question]: true },
+			group: "Misc",
+			order: 3,
 			question: QUESTIONS.settings.presets.question,
 			statement: QUESTIONS.settings.presets.statement,
+			userAsking: QUESTIONS.settings.presets.userAsking,
 		});
 	}
 
 	if (addon.addonPreview) {
 		result.push({
 			dependencies: { [QUESTIONS.settings.settings.question]: true },
+			group: "Misc",
+			order: 4,
 			question: QUESTIONS.settings.preview.question,
 			statement: QUESTIONS.settings.preview.statement,
+			userAsking: QUESTIONS.settings.preview.userAsking,
+		});
+	}
+
+	if (addon.info) {
+		result.push({
+			group: "Misc",
+			order: 5,
+			question: QUESTIONS.settings.info.question,
+			statement: QUESTIONS.settings.info.statement,
+			userAsking: QUESTIONS.settings.info.userAsking,
 		});
 	}
 
 	if (addon.versionAdded && version === trimPatchVersion(addon.versionAdded)) {
 		result.push(
 			{
+				group: "Misc",
+				order: 6,
 				question: QUESTIONS.history.new.question,
 				statement: QUESTIONS.history.new.statement,
+				userAsking: QUESTIONS.history.new.userAsking,
 			},
 			{
 				dependencies: {
@@ -643,6 +786,9 @@ const questionsByAddon = addons.map((addon) => {
 					)}.0)**?`]: false,
 				},
 
+				group: "Categorization",
+				order: 9,
+
 				question: `is your addon found under **${
 					addon.tags.includes("recommended") || addon.tags.includes("featured")
 						? "Featured"
@@ -652,6 +798,12 @@ const questionsByAddon = addons.map((addon) => {
 				)}](https://github.com/ScratchAddons/ScratchAddons/releases/tag/v${encodeURI(
 					version,
 				)}.0)**?`,
+
+				userAsking: `Is this addon currently found under ${
+					addon.tags.includes("recommended") || addon.tags.includes("featured")
+						? "Featured"
+						: "Other"
+				} new addons and updates?`,
 
 				statement: `This addon is currently found under **${
 					addon.tags.includes("recommended") || addon.tags.includes("featured")
@@ -665,8 +817,10 @@ const questionsByAddon = addons.map((addon) => {
 	if (addon.latestUpdate && version === trimPatchVersion(addon.latestUpdate.version)) {
 		result.push(
 			{
+				group: "Misc",
 				question: QUESTIONS.history.updated.question,
 				statement: QUESTIONS.history.updated.statement,
+				userAsking: QUESTIONS.history.updated.userAsking,
 			},
 
 			{
@@ -678,6 +832,8 @@ const questionsByAddon = addons.map((addon) => {
 					}** tag?`]: false,
 				},
 
+				group: "Misc",
+
 				question: `does your addon have the **${
 					manifest.latestUpdate.newSettings?.length ? "New settings" : "New features"
 				}** tag?`,
@@ -685,6 +841,10 @@ const questionsByAddon = addons.map((addon) => {
 				statement: `This addon has the **${
 					manifest.latestUpdate.newSettings?.length ? "New settings" : "New features"
 				}** tag!`,
+
+				userAsking: `Does this addon have the ${
+					manifest.latestUpdate.newSettings?.length ? "New settings" : "New features"
+				} tag?`,
 			},
 			{
 				dependencies: {
@@ -699,6 +859,9 @@ const questionsByAddon = addons.map((addon) => {
 					)}.0)**?`]: false,
 				},
 
+				group: "Categorization",
+				order: 9,
+
 				question: `is your addon found under **${
 					manifest.latestUpdate.isMajor ? "Featured" : "Other"
 				} new addons and updates** as of **[${Util.escapeMarkdown(
@@ -706,6 +869,10 @@ const questionsByAddon = addons.map((addon) => {
 				)}](https://github.com/ScratchAddons/ScratchAddons/releases/tag/v${encodeURI(
 					version,
 				)}.0)**?`,
+
+				userAsking: `Is this addon currently found under ${
+					manifest.latestUpdate.isMajor ? "Featured" : "Other"
+				} new addons and updates?`,
 
 				statement: `This addon is currently found under **${
 					manifest.latestUpdate.isMajor ? "Featured" : "Other"

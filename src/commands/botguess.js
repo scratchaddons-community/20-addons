@@ -1,19 +1,16 @@
-/** @file Command To get information about an addon. */
+/**
+ * @file Command Where a player thinks of an addon and the bot asks questions about it and
+ *   eventually guesses it.
+ */
 import { SlashCommandBuilder } from "@discordjs/builders";
-import {
-	Collection,
-	Message,
-	MessageActionRow,
-	MessageButton,
-	MessageEmbed,
-	Util,
-} from "discord.js";
+import { Message, MessageActionRow, MessageButton, MessageEmbed, Util } from "discord.js";
 
 import addons from "../common/addons.js";
 import CONSTANTS from "../common/CONSTANTS.js";
 import manifest from "../common/manifest.js";
 import questionsByAddon from "../common/questions.js";
 import generateHash from "../lib/generateHash.js";
+import { CURRENTLY_PLAYING, checkIfUserPlaying } from "../common/gameUtils.js";
 
 /**
  * Determine the best question to ask next.
@@ -72,7 +69,7 @@ function getNextQuestions(addonProbabilities, askedQuestions = []) {
 			const previousDistance = Math.abs((previous[0]?.[1] || 0) / length - 0.5);
 
 			return currentDistance < previousDistance
-				? console.log(current[1], length) || current[1] < Math.round(length / 9)
+				? current[1] < Math.round(length / 9)
 					? []
 					: [current]
 				: currentDistance > previousDistance
@@ -266,7 +263,7 @@ async function answerWithAddon(
 
 	if (!(message instanceof Message)) throw new TypeError("message is not a Message");
 
-	CURRENTLY_PLAYING.delete(interaction.user.id)
+	CURRENTLY_PLAYING.delete(interaction.user.id);
 
 	const collector = message.createMessageComponentCollector({
 		componentType: "BUTTON",
@@ -277,14 +274,7 @@ async function answerWithAddon(
 
 	collector
 		.on("collect", async (buttonInteraction) => {
-			if (CURRENTLY_PLAYING.has(interaction.user.id)) {
-				await interaction.reply({
-					content: `${interaction.user.toString()}, you already started a new game!`,
-					ephemeral: true,
-				});
-
-				return;
-			}
+			if (await checkIfUserPlaying(buttonInteraction)) return;
 
 			if (buttonInteraction.customId.startsWith("back")) {
 				if (typeof backInfo !== "object") {
@@ -332,9 +322,6 @@ async function answerWithAddon(
 			});
 		});
 }
-
-/** @type {Collection<string, Message>} */
-const CURRENTLY_PLAYING = new Collection();
 
 /**
  * Respond to an interaction with a question.
@@ -454,7 +441,7 @@ async function reply(
 
 	if (!(message instanceof Message)) throw new TypeError("message is not a Message");
 
-	CURRENTLY_PLAYING.set(interaction.user.id,message.d);
+	CURRENTLY_PLAYING.set(interaction.user.id, message);
 
 	const collector = message.createMessageComponentCollector({
 		componentType: "BUTTON",
@@ -575,31 +562,7 @@ const info = {
 	data: new SlashCommandBuilder().setDescription("You think of an addon and I guess!"),
 
 	async interaction(interaction) {
-		const current = CURRENTLY_PLAYING.get(interaction.user.id);
-
-		if (current) {
-			await interaction.reply({
-				components: [
-					new MessageActionRow().addComponents(
-						new MessageButton()
-							.setLabel("Go to game")
-							.setStyle("LINK")
-							.setURL(
-								`https://discord.com/channels/${encodeURI(
-									current.guild?.id || "@me",
-								)}/${encodeURI(current.channel.id)}/${encodeURI(current.id)}`,
-							),
-					),
-				],
-
-				content: "You already have an ongoing game!",
-				ephemeral: true,
-			});
-
-			return;
-		}
-
-		await reply(interaction);
+		if (!checkIfUserPlaying(interaction)) await reply(interaction);
 	},
 };
 

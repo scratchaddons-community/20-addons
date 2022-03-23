@@ -41,6 +41,7 @@
 		"useUnknownInCatchVariables": true,
 		"watch": false
 	},
+
 	"exclude": ["node_modules", ".git", "dist"],
 	"include": ["./*", "./.*", "./**/*", "./.**/*"],
 	"typeAcquisition": { "enable": true }
