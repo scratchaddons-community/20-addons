@@ -77,6 +77,7 @@ const selectGroupButton = (/** @type {string | undefined} */ defaultValue) =>
 
 /** @type {import("../../types/command").default} */
 const info = {
+	apply: process.env.NODE_ENV !== "production",
 	data: new SlashCommandBuilder().setDescription("I think of an addon and you guess!"),
 
 	async interaction(interaction) {
@@ -159,7 +160,7 @@ const info = {
 
 				if (!item || score > 1) {
 					return await collectedMessage.reply({
-						content: `${interaction.user.toString()}, I couldn't find that addon!`,
+						content: `I couldn't find that addon!`,
 					});
 				}
 
@@ -252,12 +253,7 @@ const info = {
 				 * @param {string} groupName
 				 * @param {boolean} updateEmbed
 				 */
-				async function answerQuestion(
-					question,
-					groupName,
-					updateEmbed = true,
-					split = [groupName],
-				) {
+				async function answerQuestion(question, groupName,updateEmbed=true, split = [groupName]) {
 					if (question) doneQuestions.add(question);
 
 					const doneGroups = Object.entries(questions).reduce(
@@ -331,9 +327,7 @@ const info = {
 							]),
 						],
 
-						embeds: updateEmbed
-							? [
-									new MessageEmbed(message.embeds[0])
+						embeds: updateEmbed?[new MessageEmbed(message.embeds[0])
 										.setDescription(
 											`${
 												message.embeds[0]?.description || ""
@@ -359,8 +353,7 @@ const info = {
 														}`,
 												) || "",
 										}),
-							  ]
-							: undefined,
+						]:undefined,
 					});
 				}
 
@@ -408,7 +401,7 @@ const info = {
 
 				await componentInteraction.deferUpdate();
 
-				await answerQuestion(question, groupName, split.length === 3, split);
+				await answerQuestion(question, groupName, split.length===3,split);
 
 				componentCollector.resetTimer();
 				messageCollector.resetTimer();

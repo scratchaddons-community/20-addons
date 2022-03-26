@@ -19,7 +19,7 @@ const version = trimPatchVersion(manifest.version);
 const QUESTIONS = {
 	categories: {
 		easterEgg: {
-			question: "is your addon an easter egg addon (shown after typing the Konami code)?",
+			question: "Is your addon an easter egg addon (shown after typing the Konami code)?",
 			statement: "This addon is an easter egg addon!",
 			userAsking: "Is this addon an easter egg addon?",
 		},
@@ -27,7 +27,7 @@ const QUESTIONS = {
 		editor: {
 			code: {
 				question:
-					"is your addon listed under **Scratch Editor Features** -> **Code Editor**?",
+					"Is your addon listed under **Scratch Editor Features** -> **Code Editor**?",
 
 				statement:
 					"You addon is listed under **Scratch Editor Features** -> **Code Editor**!",
@@ -37,7 +37,7 @@ const QUESTIONS = {
 
 			costumes: {
 				question:
-					"is your addon listed under **Scratch Editor Features** -> **Costume Editor**?",
+					"Is your addon listed under **Scratch Editor Features** -> **Costume Editor**?",
 
 				statement:
 					"This addon is listed under **Scratch Editor Features** -> **Costume Editor**!",
@@ -46,14 +46,14 @@ const QUESTIONS = {
 			},
 
 			other: {
-				question: "is your addon listed under **Scratch Editor Features** -> **Others**?",
+				question: "Is your addon listed under **Scratch Editor Features** -> **Others**?",
 				statement: "This addon is listed under **Scratch Editor Features** -> **Others**!",
 				userAsking: "Is this addon listed under Scratch Editor Features -> Others?",
 			},
 
 			player: {
 				question:
-					"is your addon listed under **Scratch Editor Features** -> **Project Player**?",
+					"Is your addon listed under **Scratch Editor Features** -> **Project Player**?",
 
 				statement:
 					"This addon is listed under **Scratch Editor Features** -> **Project Player**!",
@@ -62,40 +62,40 @@ const QUESTIONS = {
 			},
 
 			root: {
-				question: "is your addon listed under **Scratch Editor Features**?",
+				question: "Is your addon listed under **Scratch Editor Features**?",
 				statement: "This addon is listed under **Scratch Editor Features**!",
 				userAsking: "Is this addon listed under Scratch Editor Features?",
 			},
 		},
 
 		popup: {
-			question: "is your addon listed under **Extension Popup Features**?",
+			question: "Is your addon listed under **Extension Popup Features**?",
 			statement: "This addon is listed under **Extension Popup Features**!",
 			userAsking: "Is this addon listed under Extension Popup Features?",
 		},
 
 		themes: {
-			question: "is your addon listed under **Themes**?",
+			question: "Is your addon listed under **Themes**?",
 			statement: "This addon is listed under **Themes**!",
 			userAsking: "Is this addon is listed under Themes?",
 		},
 
 		website: {
 			forums: {
-				question: "is your addon listed under **Scratch Website Features** -> **Forums**?",
+				question: "Is your addon listed under **Scratch Website Features** -> **Forums**?",
 				statement: "This addon is listed under **Scratch Website Features** -> **Forums**!",
 				userAsking: "Is this addon listed under Scratch Website Features -> Forums?",
 			},
 
 			other: {
-				question: "is your addon listed under **Scratch Website Features** -> **Others**?",
+				question: "Is your addon listed under **Scratch Website Features** -> **Others**?",
 				statement: "This addon is listed under **Scratch Website Features** -> **Others**!",
 				userAsking: "Is this addon listed under Scratch Website Features -> Others?",
 			},
 
 			profiles: {
 				question:
-					"is your addon listed under **Scratch Website Features** -> **Profiles**?",
+					"Is your addon listed under **Scratch Website Features** -> **Profiles**?",
 
 				statement:
 					"This addon is listed under **Scratch Website Features** -> **Profiles**!",
@@ -105,7 +105,7 @@ const QUESTIONS = {
 
 			projects: {
 				question:
-					"is your addon listed under **Scratch Website Features** -> **Project Pages**?",
+					"Is your addon listed under **Scratch Website Features** -> **Project Pages**?",
 
 				statement:
 					"This addon is listed under **Scratch Website Features** -> **Project Pages**!",
@@ -114,7 +114,7 @@ const QUESTIONS = {
 			},
 
 			root: {
-				question: "is your addon listed under **Scratch Website Features**?",
+				question: "Is your addon listed under **Scratch Website Features**?",
 				statement: "This addon is listed under **Scratch Website Features**!",
 				userAsking: "Is this addon listed under Scratch Website Features?",
 			},
@@ -123,25 +123,25 @@ const QUESTIONS = {
 
 	groups: {
 		beta: {
-			question: "is your addon found under **Beta** when disabled?",
+			question: "Is your addon found under **Beta** when disabled?",
 			statement: "This addon is found under **Beta** when disabled!",
 			userAsking: "Is this addon found under Beta when disabled?",
 		},
 
 		featured: {
-			question: "is your addon found under **Featured** when disabled?",
+			question: "Is your addon found under **Featured** when disabled?",
 			statement: "This addon is found under **Featured** when disabled!",
 			userAsking: "Is this addon found under Featured when disabled?",
 		},
 
 		forums: {
-			question: "is your addon found under **Forums** when disabled?",
+			question: "Is your addon found under **Forums** when disabled?",
 			statement: "This addon is found under **Forums** when disabled",
 			userAsking: "Is this addon found under Forums when disabled?",
 		},
 
 		others: {
-			question: "is your addon found under **Others** when disabled?",
+			question: "Is your addon found under **Others** when disabled?",
 			statement: "This addon is found under **Others** when disabled",
 			userAsking: "Is this addon found under Others when disabled?",
 		},
@@ -149,7 +149,7 @@ const QUESTIONS = {
 
 	history: {
 		new: {
-			question: `was your addon added in the latest version (**[${Util.escapeMarkdown(
+			question: `Was your addon added in the latest version (**[${Util.escapeMarkdown(
 				version,
 			)}](https://github.com/ScratchAddons/ScratchAddons/releases/tag/v${encodeURI(
 				version,
@@ -160,7 +160,7 @@ const QUESTIONS = {
 		},
 
 		updated: {
-			question: `was your addon updated (not including completely new addons) in the latest version (**[${Util.escapeMarkdown(
+			question: `Was your addon updated (not including completely new addons) in the latest version (**[${Util.escapeMarkdown(
 				version,
 			)}](https://github.com/ScratchAddons/ScratchAddons/releases/tag/v${encodeURI(
 				version,
@@ -173,37 +173,37 @@ const QUESTIONS = {
 
 	settings: {
 		credits: {
-			question: "does your addon have credits listed on the settings page?",
+			question: "Does your addon have credits listed on the settings page?",
 			statement: "This addon has credits listed on the settings page!",
 			userAsking: "Does this addon have credits listed on the settings page?",
 		},
 
 		enabledDefault: {
-			question: "is your addon enabled by default?",
+			question: "Is your addon enabled by default?",
 			statement: "This addon is enabled by default!",
 			userAsking: "Is this addon enabled by default?",
 		},
 
 		info: {
-			question: "does your addon have any warnings and/or notices on the settings page?",
+			question: "Does your addon have any warnings and/or notices on the settings page?",
 			statement: "This addon has warnings and/or notices on the settings page!",
 			userAsking: "Does this addon have any warnings and/or notices on the settings page?",
 		},
 
 		presets: {
-			question: "does your addon have any presets for its settings?",
+			question: "Does your addon have any presets for its settings?",
 			statement: "This addon has presets for its settings!",
 			userAsking: "Does this addon have any presets for its settings?",
 		},
 
 		preview: {
-			question: "does your addon have an interactive preview for its settings?",
+			question: "Does your addon have an interactive preview for its settings?",
 			statement: "This addon has an interactive preview for its settings!",
 			userAsking: "Does this addon have an interactive preview for its settings?",
 		},
 
 		settings: {
-			question: "does your addon have any settings?",
+			question: "Does your addon have any settings?",
 			statement: "This addon has settings!",
 			userAsking: "Does this addon have any settings?",
 		},
@@ -211,25 +211,25 @@ const QUESTIONS = {
 
 	tags: {
 		beta: {
-			question: "does your addon have the **Beta** tag?",
+			question: "Does your addon have the **Beta** tag?",
 			statement: "This addon has the **Beta** tag!",
 			userAsking: "Does this addon have the Beta tag?",
 		},
 
 		dangerous: {
-			question: "does your addon have the **Dangerous** tag?",
+			question: "Does your addon have the **Dangerous** tag?",
 			statement: "This addon has the **Dangerous** tag!",
 			userAsking: "Does this addon have the Dangerous tag?",
 		},
 
 		forums: {
-			question: "does your addon have the **Forums** tag?",
+			question: "Does your addon have the **Forums** tag?",
 			statement: "This addon has the **Forums** tag!",
 			userAsking: "Does this addon have the Forums tag?",
 		},
 
 		recommended: {
-			question: "does your addon have the **Recommended** tag?",
+			question: "Does your addon have the **Recommended** tag?",
 			statement: "This addon has the **Recommended** tag!",
 			userAsking: "Does this addon have the Recommended tag?",
 		},
@@ -264,7 +264,7 @@ for (const addon of addons) {
 			dependencies: Object.fromEntries(
 				addons
 					.map(({ name }) => [
-						`does your addon’s name **start** with **${Util.escapeMarkdown(
+						`Does your addon’s name **start** with **${Util.escapeMarkdown(
 							name[0]?.toUpperCase() || "",
 						)}**?`,
 						false,
@@ -272,7 +272,7 @@ for (const addon of addons) {
 					.filter(
 						([question]) =>
 							question !==
-							`does your addon’s name **start** with **${Util.escapeMarkdown(
+							`Does your addon’s name **start** with **${Util.escapeMarkdown(
 								addon.name[0]?.toUpperCase() || "",
 							)}**?`,
 					),
@@ -281,7 +281,7 @@ for (const addon of addons) {
 			group: "Addon name",
 			order: 1,
 
-			question: `does your addon’s name **start** with **${Util.escapeMarkdown(
+			question: `Does your addon’s name **start** with **${Util.escapeMarkdown(
 				addon.name[0]?.toUpperCase() || "",
 			)}**?`,
 
@@ -295,7 +295,7 @@ for (const addon of addons) {
 			dependencies: Object.fromEntries(
 				addons
 					.map(({ name }) => [
-						`does your addon’s name **end** with **${Util.escapeMarkdown(
+						`Does your addon’s name **end** with **${Util.escapeMarkdown(
 							name.at(-1)?.toUpperCase() || "",
 						)}**?`,
 						false,
@@ -303,7 +303,7 @@ for (const addon of addons) {
 					.filter(
 						([question]) =>
 							question !==
-							`does your addon’s name **end** with **${Util.escapeMarkdown(
+							`Does your addon’s name **end** with **${Util.escapeMarkdown(
 								addon.name.at(-1)?.toUpperCase() || "",
 							)}**?`,
 					),
@@ -312,7 +312,7 @@ for (const addon of addons) {
 			group: "Addon name",
 			order: 2,
 
-			question: `does your addon’s name **end** with **${Util.escapeMarkdown(
+			question: `Does your addon’s name **end** with **${Util.escapeMarkdown(
 				addon.name.at(-1)?.toUpperCase() || "",
 			)}**?`,
 
@@ -370,7 +370,7 @@ for (const addon of addons) {
 					dependencies: {
 						[QUESTIONS.categories.themes.question]: true,
 
-						[`is your addon listed under **Themes** -> **${
+						[`Is your addon listed under **Themes** -> **${
 							addon.tags.includes("editor") ? "Website" : "Editor"
 						} Themes**?`]: false,
 					},
@@ -378,7 +378,7 @@ for (const addon of addons) {
 					group: "Categorization",
 					order: 21,
 
-					question: `is your addon listed under **Themes** -> **${
+					question: `Is your addon listed under **Themes** -> **${
 						addon.tags.includes("editor") ? "Editor" : "Website"
 					} Themes**?`,
 
@@ -723,7 +723,7 @@ for (const addon of addons) {
 				dependencies: { [QUESTIONS.settings.credits.question]: true },
 				group: "Credits",
 				order: 2,
-				question: `did **${Util.escapeMarkdown(name)}** contribute to your addon?`,
+				question: `Did **${Util.escapeMarkdown(name)}** contribute to your addon?`,
 				statement: `**${Util.escapeMarkdown(name)}** contributed to this addon!`,
 				userAsking: `Did ${name} contribute to this addon?`,
 			})),
@@ -785,7 +785,7 @@ for (const addon of addons) {
 				dependencies: {
 					[QUESTIONS.history.new.question]: true,
 
-					[`is your addon found under **${
+					[`Is your addon found under **${
 						addon.tags.includes("recommended") || addon.tags.includes("featured")
 							? "Other"
 							: "Featured"
@@ -799,7 +799,7 @@ for (const addon of addons) {
 				group: "Categorization",
 				order: 9,
 
-				question: `is your addon found under **${
+				question: `Is your addon found under **${
 					addon.tags.includes("recommended") || addon.tags.includes("featured")
 						? "Featured"
 						: "Other"
@@ -837,14 +837,14 @@ for (const addon of addons) {
 				dependencies: {
 					[QUESTIONS.history.updated.question]: true,
 
-					[`does your addon have the **${
+					[`Does your addon have the **${
 						manifest.latestUpdate.newSettings?.length ? "New features" : "New settings"
 					}** tag?`]: false,
 				},
 
 				group: "Misc",
 
-				question: `does your addon have the **${
+				question: `Does your addon have the **${
 					manifest.latestUpdate.newSettings?.length ? "New settings" : "New features"
 				}** tag?`,
 
@@ -860,7 +860,7 @@ for (const addon of addons) {
 				dependencies: {
 					[QUESTIONS.history.updated.question]: true,
 
-					[`is your addon found under **${
+					[`Is your addon found under **${
 						manifest.latestUpdate.isMajor ? "Other" : "Featured"
 					} new addons and updates** as of **[${Util.escapeMarkdown(
 						version,
@@ -872,7 +872,7 @@ for (const addon of addons) {
 				group: "Categorization",
 				order: 9,
 
-				question: `is your addon found under **${
+				question: `Is your addon found under **${
 					manifest.latestUpdate.isMajor ? "Featured" : "Other"
 				} new addons and updates** as of **[${Util.escapeMarkdown(
 					version,

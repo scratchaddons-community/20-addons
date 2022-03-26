@@ -51,34 +51,41 @@ const event = {
 		const promises = [];
 
 		for (const guild of guilds.values()) {
-			const promise = client.application.commands
-				.fetch({ guildId: guild.id })
-				.then(async (prexistingCommands) => {
-					await Promise.all(
-						prexistingCommands.map((command) => {
-							if (slashes.has(command.name)) return false;
+				const promise = client.application.commands
+					.fetch({guildId: guild.id}).catch(() =>{})
+					.then(async (prexistingCommands) => {
+						if(!prexistingCommands) return
+						await Promise.all(
+							prexistingCommands.map((command) => {
+								if (slashes.has(command.name)) return false;
 
-							return command.delete();
-						}),
-					);
+								return command.delete();
+							}),
+						);
 
-					await Promise.all(
-						slashes.map(async ({ command, permissions }, name) => {
-							const newCommand = await (prexistingCommands.has(name)
-								? client.application?.commands.edit(
-										name,
-										command.toJSON(),
-										guild.id,
-								  )
-								: client.application?.commands.create(command.toJSON(), guild.id));
+						await Promise.all(
+							slashes.map(async ({ command, permissions }, name) => {
+								const newCommand = await (prexistingCommands.has(name)
+									? client.application?.commands.edit(
+											name,
+											command.toJSON(),
+											guild.id,
+									  )
+									: client.application?.commands.create(
+											command.toJSON(),
+											guild.id,
+									  ));
 
-							if (permissions)
-								await newCommand?.permissions.add({ guild: guild.id, permissions });
-						}),
-					);
-				});
+								if (permissions)
+									await newCommand?.permissions.add({
+										guild: guild.id,
+										permissions,
+									});
+							}),
+						);
+					});
 
-			promises.push(promise);
+				promises.push(promise);
 		}
 
 		await Promise.all(promises);
