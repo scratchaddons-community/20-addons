@@ -3,7 +3,7 @@
 import { Collection, MessageEmbed } from "discord.js";
 
 import commands from "../lib/commands.js";
-import pkg from "../lib/package.js";
+import package_ from "../lib/package.js";
 
 /** @type {import("../../types/event").default<"ready">} */
 const event = {
@@ -26,69 +26,37 @@ const event = {
 			embeds: [
 				new MessageEmbed()
 					.setTitle("Bot restarted!")
-					.setDescription(`Version **v${pkg.version}**`)
+					.setDescription(`Version **v${package_.version}**`)
 					.setColor("RANDOM"),
 			],
 		});
 
-		/**
-		 * @type {Collection<
-		 * 	string,
-		 * 	{
-		 * 		command: import("../../types/command").Command;
-		 * 		permissions?: import("discord.js").ApplicationCommandPermissionData[];
-		 * 	}
-		 * >}
-		 */
+		/** @type {Collection<string, import("../../types/command").Command>} */
 		const slashes = new Collection();
 
-		for (const [key, command] of commands.entries()) {
-			if (command.apply !== false)
-				slashes.set(key, { command: command.data, permissions: command.permissions });
-		}
+		for (const [key, command] of commands.entries())
+			if (command.apply !== false) slashes.set(key, command.data);
 
-		const guilds = await client.guilds.fetch();
-		const promises = [];
+		const prexistingCommands = await client.application.commands.fetch().catch(() => {});
 
-		for (const guild of guilds.values()) {
-				const promise = client.application.commands
-					.fetch({guildId: guild.id}).catch(() =>{})
-					.then(async (prexistingCommands) => {
-						if(!prexistingCommands) return
-						await Promise.all(
-							prexistingCommands.map((command) => {
-								if (slashes.has(command.name)) return false;
+		if (!prexistingCommands) return;
 
-								return command.delete();
-							}),
-						);
+		await Promise.all(
+			prexistingCommands.map(async (command) => {
+				if (slashes.has(command.name)) return false;
 
-						await Promise.all(
-							slashes.map(async ({ command, permissions }, name) => {
-								const newCommand = await (prexistingCommands.has(name)
-									? client.application?.commands.edit(
-											name,
-											command.toJSON(),
-											guild.id,
-									  )
-									: client.application?.commands.create(
-											command.toJSON(),
-											guild.id,
-									  ));
+				return await command.delete();
+			}),
+		);
 
-								if (permissions)
-									await newCommand?.permissions.add({
-										guild: guild.id,
-										permissions,
-									});
-							}),
-						);
-					});
-
-				promises.push(promise);
-		}
-
-		await Promise.all(promises);
+		await Promise.all(
+			slashes.map(
+				async (command, name) =>
+					await (prexistingCommands.has(name)
+						? client.application?.commands.edit(name, command.toJSON())
+						: client.application?.commands.create(command.toJSON())),
+			),
+		);
 	},
 
 	once: true,

@@ -2,7 +2,6 @@ import type { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from "@d
 import type { CommandInteraction, ApplicationCommandPermissionData } from "discord.js";
 
 type ComandInfo = {
-	permissions?: ApplicationCommandPermissionData[];
 	data: Command;
 	apply?: boolean;
 	interaction: (interaction: CommandInteraction) => Promise<void> | void;
