@@ -238,17 +238,25 @@ const QUESTIONS = {
 
 const forceEasterEggs = new Set(["cat-blocks"]);
 
-const questionsByAddon = addons.map((addon) => {
-	/**
-	 * @type {{
-	 * 	dependencies?: { [key: string]: boolean };
-	 * 	group: string;
-	 * 	question: string;
-	 * 	statement: string;
-	 * 	userAsking: string;
-	 * 	order?: number;
-	 * }[]}
-	 */
+/**
+ * @type {{
+ * 	[key: string]: {
+ * 		dependencies?:
+ * 			| {
+ * 					[key: string]: boolean;
+ * 			  }
+ * 			| undefined;
+ * 		group: string;
+ * 		question: string;
+ * 		statement: string;
+ * 		userAsking: string;
+ * 		order?: number | undefined;
+ * 	}[];
+ * }}
+ */
+const questionsByAddon = {};
+
+for (const addon of addons) {
 	const result = [];
 
 	result.push(
@@ -312,7 +320,9 @@ const questionsByAddon = addons.map((addon) => {
 				addon.name.at(-1)?.toUpperCase() || "",
 			)}**!`,
 
-			userAsking: `Does this addon’s name end with ${addon.name[0]?.toUpperCase() || ""}?`,
+			userAsking: `Does this addon’s name end with ${
+				addon.name.at(-1)?.toUpperCase() || ""
+			}?`,
 		},
 	);
 
@@ -881,7 +891,7 @@ const questionsByAddon = addons.map((addon) => {
 		);
 	}
 
-	return /** @type {[string, typeof result]} */ ([addon.id, result]);
-});
+	questionsByAddon[addon.id] = result;
+}
 
 export default questionsByAddon;

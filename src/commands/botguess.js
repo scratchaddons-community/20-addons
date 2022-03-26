@@ -35,7 +35,7 @@ function getNextQuestions(addonProbabilities, askedQuestions = []) {
 	 * 		| undefined;
 	 * }[]}
 	 */ (
-		questionsByAddon
+		Object.entries(questionsByAddon)
 			.map(([addon, questions]) =>
 				Array.from({
 					length: Math.round(
@@ -96,7 +96,7 @@ function answerQuestion(justAsked, probabilityShift, probabilitiesBefore, askedQ
 	/** @type {{ [key: string]: boolean }} */
 	const dependencies = {};
 	const initialUpdated = probabilitiesBefore.map(([addonId, probability]) => {
-		const addon = Object.fromEntries(questionsByAddon)[`${addonId}`];
+		const addon = questionsByAddon[`${addonId}`];
 		const questionInfo = addon?.find(({ question }) => question === justAsked);
 
 		if (probabilityShift > 0 && questionInfo?.dependencies)
@@ -219,7 +219,7 @@ async function answerWithAddon(
 				.setTitle(foundAddon.name)
 				.setDescription(
 					`${
-						questionsByAddon
+						Object.entries(questionsByAddon)
 							.find(([id]) => id === addonProbabilities[0]?.[0])?.[1]
 							?.map(({ statement }) => `* ${statement}`)
 							.join("\n") || ""
@@ -344,7 +344,9 @@ async function answerWithAddon(
 async function reply(
 	interaction,
 	askedQuestions = [],
-	addonProbabilities = addons.map((addon) => /** @type {[string, number]} */ ([addon.id, 0])),
+	addonProbabilities = addons
+		.map((addon) => /** @type {[string, number]} */ ([addon.id, 0]))
+		.sort(() => Math.random() - 0.5),
 	askedCount = 0,
 	backInfo = false,
 ) {
@@ -489,7 +491,7 @@ async function reply(
 					: buttonInteraction.customId.startsWith("not")
 					? -1
 					: buttonInteraction.customId.startsWith("no")
-					? -3
+					? -2
 					: 0;
 
 				const previouslyAsked = Array.from(askedQuestions);
@@ -562,7 +564,7 @@ const info = {
 	data: new SlashCommandBuilder().setDescription("You think of an addon and I guess!"),
 
 	async interaction(interaction) {
-		if (!checkIfUserPlaying(interaction)) await reply(interaction);
+		if (!(await checkIfUserPlaying(interaction))) await reply(interaction);
 	},
 };
 
