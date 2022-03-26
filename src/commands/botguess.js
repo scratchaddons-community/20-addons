@@ -397,48 +397,9 @@ async function reply(
 		return;
 	}
 
-	const message = await interaction.reply({
-		components: [
-			new MessageActionRow().addComponents(
-				new MessageButton()
-					.setLabel("Yes")
-					.setStyle("SUCCESS")
-					.setCustomId(generateHash("yes")),
-				new MessageButton()
-					.setLabel("I think so")
-					.setStyle("SUCCESS")
-					.setCustomId(generateHash("probably")),
-				new MessageButton()
-					.setLabel("I don’t know")
-					.setStyle("PRIMARY")
-					.setCustomId(generateHash("dontKnow")),
-				new MessageButton()
-					.setLabel("I don’t think so")
-					.setStyle("DANGER")
-					.setCustomId(generateHash("not")),
-				new MessageButton()
-					.setLabel("No")
-					.setStyle("DANGER")
-					.setCustomId(generateHash("no")),
-			),
-			new MessageActionRow().addComponents(
-				...(typeof backInfo === "object"
-					? [
-							new MessageButton()
-								.setLabel("Back")
-								.setStyle("SECONDARY")
-								.setCustomId(generateHash("back")),
-					  ]
-					: []),
-				new MessageButton()
-					.setLabel("End")
-					.setStyle("SECONDARY")
-					.setCustomId(generateHash("end")),
-			),
-		],
+	const message = await interaction.editReply({
 
 		content: `${interaction.user.toString()}, ${questions[0]}`,
-		fetchReply: true,
 	});
 
 	if (!(message instanceof Message)) throw new TypeError("message is not a Message");

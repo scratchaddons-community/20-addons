@@ -77,7 +77,6 @@ const selectGroupButton = (/** @type {string | undefined} */ defaultValue) =>
 
 /** @type {import("../../types/command").default} */
 const info = {
-	apply: process.env.NODE_ENV !== "production",
 	data: new SlashCommandBuilder().setDescription("I think of an addon and you guess!"),
 
 	async interaction(interaction) {
