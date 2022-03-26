@@ -25,7 +25,7 @@ jobs:
               run: npm ci --force
 
             - name: Configure
-              run: npx openode ci-conf "${{ secrets.OPENODE }}" "scradd"
+              run: npx openode ci-conf "${{ secrets.OPENODE }}" "20-addons"
 
             - name: Deploy
               run: npx openode deploy
