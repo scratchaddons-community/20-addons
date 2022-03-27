@@ -225,16 +225,14 @@ const info = {
 					);
 				}
 
-				if (
-					askedCount > 5 &&
-					(addonProbabilities[1]?.[1] || 0) + 4 < (addonProbabilities[0]?.[1] || 0)
-				) {
+				if ((addonProbabilities[1]?.[1] || 0) + 4 < (addonProbabilities[0]?.[1] || 0)) {
 					await answerWithAddon(
 						oldMessage,
 						addonProbabilities,
 						askedCount,
 						askedQuestions,
-						backInfo,justAnswered
+						backInfo,
+						justAnswered,
 					);
 
 					return;
@@ -247,14 +245,27 @@ const info = {
 							addonProbabilities,
 							askedCount,
 							askedQuestions,
-							backInfo,justAnswered
+							backInfo,
+							justAnswered,
 						);
 
 						return;
 					}
 
+					await interaction.editReply({
+						components: oldMessage.components.map((row) =>
+							row.setComponents(
+								row.components.map((component) => component.setDisabled(true)),
+							),
+						),
+
+						content: oldMessage.content,
+					});
+
 					await oldMessage.reply({
-						content: `You beat me! How *did* you do that? You were thinking of an actual addon, right? (Also, I only know about addons available in v${manifest.version})`,
+						content: `${interaction.user.toString()}, you beat me! How *did* you do that? You were thinking of an actual addon, right? (Also, I only know about addons available in v${
+							manifest.version
+						})`,
 					});
 
 					CURRENTLY_PLAYING.delete(interaction.user.id);
@@ -458,7 +469,7 @@ const info = {
 				askedCount,
 				askedQuestions,
 				backInfo,
-				justAnswered=""
+				justAnswered = "",
 			) {
 				const foundAddon = addons.find(({ id }) => id === addonProbabilities[0]?.[0]);
 
@@ -519,9 +530,9 @@ const info = {
 						),
 					],
 
-					content:( oldMessage.content
-						? `${oldMessage.content} **${justAnswered}**\n`
-						: "")+`Is it the **${foundAddon.name}** addon?`,
+					content:
+						(oldMessage.content ? `${oldMessage.content} **${justAnswered}**\n` : "") +
+						`Is it the **${foundAddon.name}** addon?`,
 				});
 
 				const message = await oldMessage.reply({
@@ -631,7 +642,8 @@ const info = {
 								backInfo.askedQuestions,
 								backInfo.probabilities,
 								askedCount - 1,
-								backInfo.justAsked,buttonInteraction.component.label||""
+								backInfo.justAsked,
+								buttonInteraction.component.label || "",
 							);
 
 							if (nextMessage)
@@ -645,7 +657,9 @@ const info = {
 						const nextMessage = await reply(
 							askedQuestions,
 							addonProbabilities.slice(1),
-							askedCount + 1,false,"No"
+							askedCount + 1,
+							false,
+							"No",
 						);
 
 						if (nextMessage) CURRENTLY_PLAYING.set(interaction.user.id, nextMessage);
