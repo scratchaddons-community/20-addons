@@ -165,24 +165,15 @@ const info = {
 	async interaction(interaction) {
 		if (!(await checkIfUserPlaying(interaction))) {
 			await interaction.reply({
-				components: [
-					new MessageActionRow().setComponents([
-						new MessageButton()
-							.setLabel("Please wait")
-							.setStyle("SUCCESS")
-							.setCustomId("wait")
-							.setDisabled(true),
-					]),
-				],
+				content:
+					"Think of an addon. Answer my questions about it and I will try to guess which one you are thinking of!",
 			});
 			await reply();
 
 			/**
 			 * Respond to an interaction with a question.
 			 *
-			 * @param {| import("discord.js").ButtonInteraction
-			 * 	| import("discord.js").CommandInteraction} interaction
-			 *   - The interaction to respond to.
+			 * - The interaction to respond to.
 			 *
 			 * @param {string[]} [askedQuestions] - Questions to ignore.
 			 * @param {[string, number][]} [addonProbabilities] - Current probabilities of each
@@ -259,7 +250,7 @@ const info = {
 							),
 						),
 
-						content: oldMessage.content,
+						embeds: [new MessageEmbed(oldMessage.embeds[0])],
 					});
 
 					await oldMessage.reply({
@@ -313,9 +304,13 @@ const info = {
 						),
 					],
 
-					content:
-						(oldMessage.content ? `${oldMessage.content} **${justAnswered}**\n` : "") +
-						questions[0],
+					embeds: [
+						new MessageEmbed(oldMessage.embeds[0]).setDescription(
+							(oldMessage.embeds[0]?.description
+								? `${oldMessage.embeds[0]?.description || ""} **${justAnswered}**\n`
+								: "") + questions[0],
+						),
+					],
 				});
 
 				if (!(message instanceof Message)) throw new TypeError("message is not a Message");
@@ -348,7 +343,7 @@ const info = {
 										),
 									),
 
-									content: message.content,
+									embeds: [new MessageEmbed(oldMessage.embeds[0])],
 								}),
 							]);
 
@@ -436,8 +431,6 @@ const info = {
 											),
 										),
 									),
-
-									content: message.content,
 								}),
 							]);
 						}
@@ -462,6 +455,8 @@ const info = {
 			 * 			justAsked: string;
 			 * 	  }} backInfo
 			 *   - Information about the previous question.
+			 *
+			 * @param justAnswered
 			 */
 			async function answerWithAddon(
 				oldMessage,
@@ -530,9 +525,17 @@ const info = {
 						),
 					],
 
-					content:
-						(oldMessage.content ? `${oldMessage.content} **${justAnswered}**\n` : "") +
-						`Is it the **${foundAddon.name}** addon?`,
+					embeds: [
+						new MessageEmbed(oldMessage.embeds[0]).setDescription(
+							`${
+								oldMessage.embeds[0]?.description || ""
+									? `${
+											oldMessage.embeds[0]?.description || ""
+									  } **${justAnswered}**\n`
+									: ""
+							}Is it the **${foundAddon.name}** addon?`,
+						),
+					],
 				});
 
 				const message = await oldMessage.reply({
@@ -603,8 +606,6 @@ const info = {
 								}`,
 							}),
 					],
-
-					fetchReply: true,
 				});
 
 				if (!(message instanceof Message)) throw new TypeError("message is not a Message");
@@ -636,7 +637,24 @@ const info = {
 								return;
 							}
 
-							await buttonInteraction.deferUpdate();
+							await buttonInteraction.reply({
+								components: [
+									new MessageActionRow().addComponents(
+										new MessageButton()
+											.setLabel("Go to game")
+											.setStyle("LINK")
+											.setURL(
+												`https://discord.com/channels/${encodeURI(
+													oldMessage.guild?.id || "@me",
+												)}/${encodeURI(oldMessage.channel.id)}/${encodeURI(
+													oldMessage.id,
+												)}`,
+											),
+									),
+								],
+
+								ephemeral: true,
+							});
 
 							const nextMessage = await reply(
 								backInfo.askedQuestions,
@@ -652,7 +670,24 @@ const info = {
 							return;
 						}
 
-						await buttonInteraction.deferUpdate();
+						await buttonInteraction.reply({
+							components: [
+								new MessageActionRow().addComponents(
+									new MessageButton()
+										.setLabel("Go to game")
+										.setStyle("LINK")
+										.setURL(
+											`https://discord.com/channels/${encodeURI(
+												oldMessage.guild?.id || "@me",
+											)}/${encodeURI(oldMessage.channel.id)}/${encodeURI(
+												oldMessage.id,
+											)}`,
+										),
+								),
+							],
+
+							ephemeral: true,
+						});
 
 						const nextMessage = await reply(
 							askedQuestions,
@@ -673,7 +708,7 @@ const info = {
 								),
 							),
 
-							content: message.content,
+							embeds: [new MessageEmbed(message.embeds[0])],
 						});
 					});
 			}
